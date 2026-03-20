@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#4a9b6f"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Debloat Daily"/>
+  <title>Debloat Daily</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green-50:#f0faf4;--green-100:#d6f2e3;--green-200:#a8e2c3;
+      --green-400:#4a9b6f;--green-500:#3a7d59;--green-600:#2e6347;
+      --amber:#f5a623;--amber-bg:#fff8ed;--amber-border:#fde8b4;
+      --blue:#3b82c4;--blue-bg:#eef4fc;--blue-border:#c3d9f4;
+      --purple:#7c5cbf;--purple-bg:#f3effc;--purple-border:#d4c8f5;
+      --red-bg:#fff0f0;--red-border:#ffd4d4;--red:#c0392b;
+      --gray-50:#f8f9f8;--gray-100:#f0f1f0;--gray-200:#e2e4e2;
+      --gray-300:#c8cbc8;--gray-400:#9ca09c;--gray-500:#6b6f6b;
+      --bg:#f4f7f4;--card:#ffffff;
+      --text-primary:#1e201e;--text-secondary:#6b6f6b;--text-muted:#9ca09c;
+      --border:#e2e4e2;
+      --shadow:0 2px 12px rgba(0,0,0,0.07);--shadow-lg:0 8px 32px rgba(0,0,0,0.10);
+      --radius:16px;--radius-sm:10px;--radius-xs:8px;
+      --nav-h:68px;--header-h:60px;
+    }
+    [data-theme="dark"]{
+      --bg:#111411;--card:#1c1f1c;
+      --text-primary:#e8ebe8;--text-secondary:#9ca09c;--text-muted:#6b6f6b;
+      --border:#2a2d2a;
+      --shadow:0 2px 12px rgba(0,0,0,0.30);--shadow-lg:0 8px 32px rgba(0,0,0,0.40);
+      --green-50:#0d1f14;--green-100:#132a1c;
+      --gray-50:#161816;--gray-100:#1c1f1c;
+      --amber-bg:#1f1a0e;--amber-border:#3a2e10;
+      --blue-bg:#0e1620;--blue-border:#1a2e44;
+      --purple-bg:#16102a;--purple-border:#2e2050;
+      --red-bg:#1f1010;--red-border:#3a1a1a;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);font-size:15px;line-height:1.5;transition:background .3s,color .3s;}
+
+    /* Mobile-first: app is a column, main-content fills everything */
+    #app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
+    #main-content{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;}
+
+    /* HEADER */
+    .header{height:var(--header-h);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;position:relative;z-index:10;}
+    .header-logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--green-400);}
+    .header-sub{font-size:11px;color:var(--text-muted);margin-top:-2px;}
+    .header-right{display:flex;gap:8px;align-items:center;}
+    .icon-btn{width:38px;height:38px;border-radius:50%;border:none;background:var(--gray-50);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;transition:background .2s;}
+    .icon-btn:active{background:var(--gray-100);}
+
+    /* SCREENS */
+    .screens{flex:1;overflow:hidden;position:relative;}
+    .screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:0 0 calc(var(--nav-h)+16px);opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .25s ease,transform .25s ease;-webkit-overflow-scrolling:touch;}
+    .screen.active{opacity:1;pointer-events:all;transform:translateY(0);}
+    .screen::-webkit-scrollbar{display:none;}
+    .screen{scrollbar-width:none;}
+
+    /* NAV — mobile: bottom bar. Desktop: left sidebar (overridden in media query) */
+    .nav{height:var(--nav-h);background:var(--card);border-top:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);order:2;}
+    .nav-sidebar-logo{display:none;}/* hidden on mobile, shown on desktop via JS+CSS */
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 0;cursor:pointer;border:none;background:none;color:var(--text-muted);transition:color .2s;}
+    .nav-item.active{color:var(--green-400);}
+    .nav-icon{font-size:20px;line-height:1;}
+    .nav-label{font-size:9px;font-weight:500;letter-spacing:0.2px;}
+    .nav-dot{width:4px;height:4px;border-radius:50%;background:var(--green-400);margin-top:-2px;opacity:0;transition:opacity .2s;}
+    .nav-item.active .nav-dot{opacity:1;}
+
+    /* COMMON */
+    .page-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--text-primary);padding:20px 16px 4px;line-height:1.2;}
+    .page-sub{font-size:13px;color:var(--text-secondary);padding:0 16px 16px;}
+    .section-label{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
+
+    /* GREETING */
+    .greeting-card{margin:16px 16px 8px;background:linear-gradient(135deg,var(--green-400) 0%,#5cb87f 100%);border-radius:var(--radius);padding:20px;color:white;box-shadow:0 4px 20px rgba(74,155,111,.30);}
+    .greeting-day{font-size:12px;opacity:.85;margin-bottom:4px;letter-spacing:.5px;}
+    .greeting-text{font-family:'DM Serif Display',serif;font-size:22px;line-height:1.2;margin-bottom:12px;}
+    .greeting-progress{background:rgba(255,255,255,.25);border-radius:99px;height:6px;overflow:hidden;margin-bottom:6px;}
+    .greeting-fill{height:100%;border-radius:99px;background:white;transition:width .5s;}
+    .greeting-pct{font-size:12px;opacity:.9;}
+
+    /* PROGRESS */
+    .progress-wrap{margin:0 16px 4px;}
+    .progress-bar-track{height:8px;border-radius:99px;background:var(--green-100);overflow:hidden;}
+    .progress-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green-400),#5cb87f);transition:width .5s cubic-bezier(.4,0,.2,1);}
+    .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:6px;}
+    .progress-pct{font-weight:600;color:var(--green-400);font-size:13px;}
+
+    /* CHECKLIST */
+    .timeline-section{margin:0 16px 8px;}
+    .timeline-header{display:flex;align-items:center;gap:8px;padding:14px 0 8px;}
+    .timeline-icon{font-size:20px;}
+    .timeline-title{font-weight:600;font-size:15px;}
+    .task-item{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:6px;border:1px solid var(--border);cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+    .task-item:active{transform:scale(.98);}
+    .task-item.done{border-color:var(--green-200);background:var(--green-50);}
+    .task-item.custom-task{border-style:dashed;}
+    .task-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--gray-300);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .25s;background:transparent;}
+    .task-item.done .task-check{background:var(--green-400);border-color:var(--green-400);color:white;}
+    .task-text{font-size:14px;color:var(--text-primary);flex:1;}
+    .task-item.done .task-text{color:var(--text-muted);text-decoration:line-through;}
+    .task-optional{font-size:10px;color:var(--text-muted);background:var(--gray-100);padding:2px 7px;border-radius:99px;}
+    .task-delete{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px 6px;flex-shrink:0;line-height:1;border-radius:6px;transition:all .15s;}
+    .task-delete:active{background:var(--red-bg);color:var(--red);}
+    .task-info-btn{background:var(--green-100);border:1px solid var(--green-200);color:var(--green-500);font-size:13px;font-weight:600;cursor:pointer;padding:3px 9px;flex-shrink:0;line-height:1.6;border-radius:99px;transition:all .15s;letter-spacing:0.2px;}
+    .task-info-btn:active{background:var(--green-200);}
+    [data-theme="dark"] .task-info-btn{background:var(--green-50);border-color:var(--green-100);}
+
+    /* CONFIRM TOAST */
+    .confirm-toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:12px;right:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-lg);z-index:300;display:none;flex-direction:column;gap:12px;}
+    .confirm-toast.show{display:flex;}
+    .confirm-toast-msg{font-size:14px;color:var(--text-primary);font-weight:500;}
+    .confirm-toast-sub{font-size:12px;color:var(--text-muted);margin-top:-6px;}
+    .confirm-toast-btns{display:flex;gap:8px;}
+    .confirm-yes{flex:1;background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);border-radius:var(--radius-xs);padding:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+    .confirm-no{flex:1;background:var(--gray-50);color:var(--text-secondary);border:1px solid var(--border);border-radius:var(--radius-xs);padding:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+    /* DETAIL MODAL */
+    .detail-modal{position:fixed;inset:0;z-index:250;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .detail-modal.open{opacity:1;pointer-events:all;}
+    .detail-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);}
+    .detail-sheet{position:relative;background:var(--card);border-radius:24px 24px 0 0;width:100%;max-height:80vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+    .detail-modal.open .detail-sheet{transform:translateY(0);}
+    .detail-handle{width:40px;height:4px;border-radius:99px;background:var(--gray-200);margin:12px auto 4px;}
+    .detail-header{padding:12px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+    .detail-header-icon{font-size:28px;}
+    .detail-header-text{flex:1;}
+    .detail-title{font-family:'DM Serif Display',serif;font-size:18px;line-height:1.2;}
+    .detail-section-tag{font-size:11px;color:var(--text-muted);margin-top:2px;}
+    .detail-close{background:var(--gray-100);border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);flex-shrink:0;}
+    .detail-body{overflow-y:auto;padding:16px 20px 32px;}
+    .detail-body::-webkit-scrollbar{display:none;}
+    .detail-why{background:var(--green-50);border:1px solid var(--green-100);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--text-secondary);line-height:1.6;}
+    .detail-why strong{color:var(--green-500);display:block;margin-bottom:3px;font-size:12px;text-transform:uppercase;letter-spacing:.5px;}
+    .detail-steps-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;}
+    .detail-step{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-secondary);line-height:1.5;}
+    .detail-step:last-child{border-bottom:none;}
+    .detail-step-num{width:22px;height:22px;border-radius:50%;background:var(--green-400);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+    .detail-tip{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius-sm);padding:11px 13px;margin-top:12px;font-size:12px;color:var(--text-secondary);line-height:1.5;}
+    .detail-tip strong{color:var(--amber);}
+
+    /* ADD TASK BTN */
+    .add-task-btn{display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px dashed var(--green-200);background:transparent;color:var(--green-500);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;width:100%;margin-bottom:6px;transition:all .2s;}
+    .add-task-btn:active{background:var(--green-50);}
+
+    /* SUGGEST MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .modal-overlay.open{opacity:1;pointer-events:all;}
+    .modal-sheet{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-height:85vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+    .modal-overlay.open .modal-sheet{transform:translateY(0);}
+    .modal-handle{width:40px;height:4px;border-radius:99px;background:var(--gray-200);margin:12px auto 0;}
+    .modal-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);}
+    .modal-title{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:2px;}
+    .modal-sub{font-size:13px;color:var(--text-secondary);}
+    .modal-body{overflow-y:auto;padding:12px 16px 24px;flex:1;}
+    .modal-body::-webkit-scrollbar{display:none;}
+    .suggest-cat{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);padding:10px 0 6px;}
+    .suggest-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);margin-bottom:6px;cursor:pointer;transition:all .2s;}
+    .suggest-item:active{transform:scale(.98);}
+    .suggest-item.added{border-color:var(--green-200);background:var(--green-50);}
+    .suggest-icon{font-size:22px;flex-shrink:0;}
+    .suggest-text{flex:1;}
+    .suggest-name{font-size:14px;font-weight:500;}
+    .suggest-why{font-size:12px;color:var(--text-muted);margin-top:1px;}
+    .suggest-check{font-size:16px;color:var(--green-400);flex-shrink:0;}
+    .custom-input-row{display:flex;gap:8px;margin-bottom:12px;}
+    .custom-input{flex:1;background:var(--gray-50);border:1px solid var(--border);border-radius:var(--radius-xs);padding:10px 14px;font-size:14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;}
+    .custom-input:focus{outline:2px solid var(--green-400);}
+    .custom-add-btn{background:var(--green-400);color:white;border:none;border-radius:var(--radius-xs);padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+    .custom-add-btn:active{background:var(--green-500);}
+    .section-picker{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+    .section-pill{padding:6px 12px;border-radius:99px;border:1px solid var(--border);font-size:12px;font-weight:500;background:var(--gray-50);color:var(--text-secondary);cursor:pointer;transition:all .2s;}
+    .section-pill.active{background:var(--green-400);color:white;border-color:var(--green-400);}
+
+    /* ALL DONE */
+    .all-done{background:linear-gradient(135deg,var(--green-50),var(--card));border:2px solid var(--green-200);border-radius:var(--radius);margin:0 16px;padding:24px;text-align:center;}
+    .all-done-icon{font-size:48px;margin-bottom:8px;}
+    .all-done-text{font-family:'DM Serif Display',serif;font-size:22px;color:var(--green-400);}
+    .all-done-sub{font-size:13px;color:var(--text-muted);margin-top:4px;}
+
+    .habit-edit-btn{background:var(--gray-50);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
+    .habit-edit-btn:active{background:var(--gray-100);}
+    .habit-del-btn{background:var(--red-bg);border:1px solid var(--red-border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--red);line-height:1;transition:background .15s;}
+    .habit-del-btn:active{background:var(--red-border);}
+    [data-theme="dark"] .habit-edit-btn{background:var(--gray-100);border-color:var(--border);}
+    [data-theme="dark"] .habit-del-btn{background:var(--red-bg);border-color:var(--red-border);color:#e07b7b;}
+    .habit-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+    .habit-name{font-weight:600;font-size:15px;}
+    .habit-goal{font-size:12px;color:var(--text-muted);margin-top:1px;}
+    .habit-stat{font-size:13px;color:var(--green-400);font-weight:600;text-align:right;}
+    .habit-stat small{display:block;font-size:10px;color:var(--text-muted);font-weight:400;}
+    .week-dots{display:flex;gap:6px;}
+    .day-dot-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+    .day-dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--gray-50);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .2s;color:var(--text-muted);}
+    .day-dot.done{background:var(--green-400);border-color:var(--green-400);color:white;}
+    .day-dot.today{border-color:var(--green-400);}
+    .day-label{font-size:10px;color:var(--text-muted);font-weight:500;}
+    .week-summary{background:var(--green-50);border:1px solid var(--green-100);border-radius:var(--radius);padding:16px;margin:0 16px 10px;}
+    .week-summary-title{font-weight:600;font-size:14px;color:var(--green-500);margin-bottom:8px;}
+    .summary-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--green-100);}
+    .summary-row:last-child{border-bottom:none;}
+    .summary-row span{font-size:13px;color:var(--text-secondary);}
+    .summary-row strong{font-size:13px;color:var(--green-500);}
+
+    /* FOOD */
+    .food-section{padding:0 16px;margin-bottom:10px;}
+    .food-label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.5px;padding:14px 0 8px;}
+    .food-label-badge{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:600;letter-spacing:.5px;}
+    .avoid-badge{background:#fdecea;color:#c0392b;}
+    .eat-badge{background:var(--green-100);color:var(--green-500);}
+    .food-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-sm);margin-bottom:6px;border:1px solid var(--border);background:var(--card);}
+    .food-icon{font-size:22px;flex-shrink:0;}
+    .food-name{font-size:14px;font-weight:500;}
+    .food-reason{font-size:12px;color:var(--text-muted);margin-top:1px;}
+    .food-item.avoid{border-color:#fcd0cc;background:#fff9f9;}
+    .food-item.eat{border-color:var(--green-100);background:var(--green-50);}
+    [data-theme="dark"] .food-item.avoid{background:#1f1210;border-color:#3a1c18;}
+    [data-theme="dark"] .food-item.eat{background:var(--green-50);border-color:var(--green-100);}
+
+    /* EXERCISE */
+    .ex-section{padding:0 16px;margin-bottom:10px;}
+    .ex-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:12px 0 6px;}
+    .ex-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;}
+    .ex-icon-wrap{width:44px;height:44px;border-radius:12px;background:var(--green-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+    .ex-info{flex:1;}
+    .ex-name{font-weight:600;font-size:14px;margin-bottom:2px;}
+    .ex-detail{font-size:12px;color:var(--text-muted);}
+    .timer-btn{display:flex;align-items:center;gap:6px;background:var(--green-400);color:white;border:none;border-radius:var(--radius-xs);padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;margin-top:10px;transition:all .2s;font-family:'DM Sans',sans-serif;}
+    .timer-btn:active{background:var(--green-500);transform:scale(.97);}
+    .timer-countdown{display:none;align-items:center;gap:8px;margin-top:10px;}
+    .timer-countdown.visible{display:flex;}
+    .timer-num{font-size:28px;font-weight:600;color:var(--green-400);font-family:'DM Serif Display',serif;line-height:1;min-width:52px;}
+    .timer-stop{background:none;border:1px solid var(--border);border-radius:var(--radius-xs);padding:6px 10px;font-size:12px;color:var(--text-secondary);cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+    /* ===== LEARN SCREEN ===== */
+    .learn-hero{margin:16px 16px 0;background:linear-gradient(135deg,#1a3a2a 0%,#2d6347 100%);border-radius:var(--radius);padding:24px 20px;color:white;}
+    .learn-hero-icon{font-size:36px;margin-bottom:10px;}
+    .learn-hero-title{font-family:'DM Serif Display',serif;font-size:22px;line-height:1.2;margin-bottom:6px;}
+    .learn-hero-sub{font-size:13px;opacity:.8;line-height:1.5;}
+    .learn-topics{padding:16px 16px 0;}
+    .topic-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:all .2s;}
+    .topic-card:active{transform:scale(.99);}
+    .topic-header{display:flex;align-items:center;gap:14px;padding:16px;}
+    .topic-icon-wrap{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+    .topic-icon-wrap.amber{background:var(--amber-bg);}
+    .topic-icon-wrap.blue{background:var(--blue-bg);}
+    .topic-icon-wrap.green{background:var(--green-50);}
+    .topic-icon-wrap.purple{background:var(--purple-bg);}
+    .topic-icon-wrap.red{background:var(--red-bg);}
+    .topic-title-wrap{flex:1;}
+    .topic-title{font-weight:600;font-size:15px;margin-bottom:2px;}
+    .topic-preview{font-size:12px;color:var(--text-muted);}
+    .topic-chevron{font-size:18px;color:var(--text-muted);transition:transform .25s;}
+    .topic-card.open .topic-chevron{transform:rotate(90deg);}
+    .topic-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1);}
+    .topic-card.open .topic-body{max-height:2000px;}
+    .topic-content{padding:0 16px 20px;border-top:1px solid var(--border);}
+
+    /* Learn content elements */
+    .learn-section-title{font-weight:600;font-size:14px;color:var(--text-primary);margin:16px 0 8px;}
+    .fact-box{border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;border-left:3px solid;}
+    .fact-box.amber{background:var(--amber-bg);border-color:var(--amber);}
+    .fact-box.blue{background:var(--blue-bg);border-color:var(--blue);}
+    .fact-box.green{background:var(--green-50);border-color:var(--green-400);}
+    .fact-box.purple{background:var(--purple-bg);border-color:var(--purple);}
+    .fact-box.red{background:var(--red-bg);border-color:var(--red);}
+    .fact-title{font-size:13px;font-weight:600;margin-bottom:3px;}
+    .fact-text{font-size:13px;color:var(--text-secondary);line-height:1.5;}
+    .tip-list{list-style:none;padding:0;}
+    .tip-list li{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-secondary);line-height:1.5;}
+    .tip-list li:last-child{border-bottom:none;}
+    .tip-list li::before{content:attr(data-icon);font-size:16px;flex-shrink:0;margin-top:1px;}
+    .myth-row{display:flex;gap:8px;margin-bottom:8px;}
+    .myth-col{flex:1;border-radius:var(--radius-sm);padding:12px;font-size:12px;line-height:1.5;}
+    .myth-col.bad{background:var(--red-bg);border:1px solid var(--red-border);color:var(--text-primary);}
+    .myth-col.good{background:var(--green-50);border:1px solid var(--green-100);color:var(--text-primary);}
+    .myth-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;}
+    .myth-col.bad .myth-label{color:var(--red);}
+    .myth-col.good .myth-label{color:var(--green-500);}
+    .did-you-know{background:linear-gradient(135deg,var(--green-50),var(--blue-bg));border:1px solid var(--green-100);border-radius:var(--radius-sm);padding:14px;margin:12px 0;font-size:13px;color:var(--text-secondary);line-height:1.6;}
+    .did-you-know strong{color:var(--green-500);}
+    .stat-row{display:flex;gap:8px;margin-bottom:12px;}
+    .stat-box{flex:1;background:var(--gray-50);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;}
+    .stat-num{font-family:'DM Serif Display',serif;font-size:24px;color:var(--green-400);line-height:1;}
+    .stat-label{font-size:11px;color:var(--text-muted);margin-top:4px;}
+    .step-list{list-style:none;padding:0;counter-reset:steps;}
+    .step-list li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-secondary);line-height:1.5;counter-increment:steps;}
+    .step-list li:last-child{border-bottom:none;}
+    .step-num{width:24px;height:24px;border-radius:50%;background:var(--green-400);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;margin-top:1px;}
+
+    /* SETTINGS */
+    .settings-section{padding:0 16px;margin-bottom:10px;}
+    .settings-group{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+    .settings-row{display:flex;align-items:center;padding:15px 16px;border-bottom:1px solid var(--border);gap:12px;}
+    .settings-row:last-child{border-bottom:none;}
+    .settings-row-icon{font-size:20px;width:28px;text-align:center;flex-shrink:0;}
+    .settings-row-info{flex:1;}
+    .settings-row-label{font-size:14px;font-weight:500;}
+    .settings-row-sub{font-size:12px;color:var(--text-muted);margin-top:1px;}
+    .toggle{position:relative;width:48px;height:28px;flex-shrink:0;}
+    .toggle input{opacity:0;width:0;height:0;}
+    .toggle-slider{position:absolute;inset:0;background:var(--gray-200);border-radius:99px;cursor:pointer;transition:background .3s;}
+    .toggle-slider::before{content:'';position:absolute;width:22px;height:22px;left:3px;top:3px;background:white;border-radius:50%;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+    .toggle input:checked+.toggle-slider{background:var(--green-400);}
+    .toggle input:checked+.toggle-slider::before{transform:translateX(20px);}
+    .time-input{background:var(--gray-50);border:1px solid var(--border);border-radius:var(--radius-xs);padding:6px 10px;font-size:14px;font-weight:500;color:var(--text-primary);font-family:'DM Sans',sans-serif;cursor:pointer;width:90px;text-align:center;}
+    .time-input:focus{outline:2px solid var(--green-400);}
+    .danger-btn{background:#fdecea;color:#c0392b;border:1px solid #fcd0cc;border-radius:var(--radius-xs);padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+    .danger-btn:active{background:#fcd0cc;}
+    [data-theme="dark"] .danger-btn{background:var(--red-bg);border-color:var(--red-border);color:#e07b7b;}
+
+    /* NOTIF BANNER */
+    .notif-banner{position:fixed;top:var(--header-h);left:0;right:0;background:var(--green-400);color:white;padding:14px 16px;font-size:13px;font-weight:500;z-index:9999;align-items:center;gap:10px;display:none;}
+    .notif-close{margin-left:auto;background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.4);color:white;font-size:22px;font-weight:700;cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
+
+    /* ===== SPLASH SCREEN ===== */
+    #splash{
+      position:fixed;inset:0;z-index:99999;
+      background:linear-gradient(160deg,#2e6347 0%,#4a9b6f 50%,#5cb87f 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:0;
+    }
+    #splash.hide{
+      animation:splashFadeOut .6s ease-in forwards;
+    }
+    @keyframes splashFadeOut{
+      0%{opacity:1;transform:scale(1);}
+      100%{opacity:0;transform:scale(1.04);pointer-events:none;}
+    }
+    .splash-icon-wrap{
+      animation:splashIconIn .7s cubic-bezier(.34,1.56,.64,1) forwards;
+      opacity:0;
+    }
+    @keyframes splashIconIn{
+      0%{opacity:0;transform:scale(0.3) rotate(-15deg);}
+      100%{opacity:1;transform:scale(1) rotate(0deg);}
+    }
+    .splash-leaves{
+      font-size:90px;line-height:1;
+      filter:drop-shadow(0 8px 24px rgba(0,0,0,0.25));
+    }
+    .splash-title{
+      font-family:'DM Serif Display',serif;
+      font-size:34px;color:white;
+      letter-spacing:-0.5px;margin-top:20px;
+      opacity:0;animation:splashTitleIn .6s ease forwards .4s;
+    }
+    @keyframes splashTitleIn{
+      0%{opacity:0;transform:translateY(16px);}
+      100%{opacity:1;transform:translateY(0);}
+    }
+    .splash-sub{
+      font-size:14px;color:rgba(255,255,255,0.75);
+      margin-top:6px;letter-spacing:0.5px;
+      opacity:0;animation:splashTitleIn .6s ease forwards .6s;
+    }
+    .splash-dots{
+      display:flex;gap:8px;margin-top:48px;
+      opacity:0;animation:splashTitleIn .4s ease forwards .8s;
+    }
+    .splash-dot{
+      width:8px;height:8px;border-radius:50%;
+      background:rgba(255,255,255,0.4);
+      animation:dotPulse 1.2s ease-in-out infinite;
+    }
+    .splash-dot:nth-child(2){animation-delay:.2s;}
+    .splash-dot:nth-child(3){animation-delay:.4s;}
+    @keyframes dotPulse{
+      0%,100%{background:rgba(255,255,255,0.3);transform:scale(1);}
+      50%{background:rgba(255,255,255,0.9);transform:scale(1.3);}
+    }
+    .splash-ring{
+      position:absolute;border-radius:50%;
+      border:2px solid rgba(255,255,255,0.1);
+      animation:ringExpand 2s ease-out infinite;
+    }
+    .splash-ring:nth-child(1){width:200px;height:200px;animation-delay:0s;}
+    .splash-ring:nth-child(2){width:320px;height:320px;animation-delay:.4s;}
+    .splash-ring:nth-child(3){width:440px;height:440px;animation-delay:.8s;}
+    @keyframes ringExpand{
+      0%{opacity:.5;transform:scale(0.8);}
+      100%{opacity:0;transform:scale(1.2);}
+    }
+    /* Small phones (< 360px wide e.g. older Androids) */
+    @media (max-width:359px){
+      .page-title{font-size:22px;padding:16px 14px 4px;}
+      .page-sub{font-size:12px;padding:0 14px 12px;}
+      .greeting-card{margin:12px 12px 6px;padding:16px;}
+      .greeting-text{font-size:18px;}
+      .timeline-section{margin:0 12px 6px;}
+      .task-item{padding:11px 10px;gap:8px;}
+      .task-text{font-size:13px;}
+      .task-check{width:22px;height:22px;}
+      .habit-card{margin:0 12px 8px;}
+      .day-dot{width:30px;height:30px;font-size:11px;}
+      .day-label{font-size:9px;}
+      .food-section{padding:0 12px;}
+      .ex-section{padding:0 12px;}
+      .learn-topics{padding:12px 12px 0;}
+      .settings-section{padding:0 12px;}
+      .progress-wrap{margin:0 12px 4px;}
+      .week-summary{margin:0 12px 8px;}
+      .nav-icon{font-size:18px;}
+      .nav-label{font-size:8px;}
+    }
+    /* Normal phones (360–480px — Redmi Note 11 and most Android midrange) */
+    @media (min-width:360px) and (max-width:480px){
+      .day-dot{width:34px;height:34px;}
+    }
+    /* Large phones / small tablets (481–767px) */
+    @media (min-width:481px) and (max-width:767px){
+      .greeting-card{margin:20px 20px 10px;}
+      .progress-wrap{margin:0 20px 6px;}
+      .timeline-section{margin:0 20px 10px;}
+      .habit-card{margin:0 20px 12px;}
+      .week-summary{margin:0 20px 12px;}
+      .food-section{padding:0 20px;}
+      .ex-section{padding:0 20px;}
+      .learn-topics{padding:16px 20px 0;}
+      .settings-section{padding:0 20px;}
+      .task-text{font-size:15px;}
+      .day-dot{width:40px;height:40px;font-size:14px;}
+    }
+    /* Tablets (768–1023px) — wider single column */
+    @media (min-width:768px) and (max-width:1023px){
+      .greeting-card{margin:24px 24px 10px;}
+      .progress-wrap{margin:0 24px 6px;}
+      .timeline-section{margin:0 24px 10px;}
+      .habit-card{margin:0 24px 12px;}
+      .week-summary{margin:0 24px 12px;}
+      .food-section{padding:0 24px;}
+      .ex-section{padding:0 24px;}
+      .learn-topics{padding:16px 24px 0;}
+      .learn-hero{margin:20px 24px 0;}
+      .settings-section{padding:0 24px;}
+      .task-text{font-size:15px;}
+      .day-dot{width:42px;height:42px;font-size:14px;}
+      .page-title{font-size:28px;padding:24px 24px 6px;}
+      .page-sub{padding:0 24px 16px;}
+      .confirm-toast{max-width:600px;left:50%;transform:translateX(-50%);}
+      .confirm-toast.show{display:flex;transform:translateX(-50%);}
+    }
+
+    /* Laptop & Desktop (1024px+) — sidebar layout */
+    @media (min-width:1024px){
+      html,body{overflow:auto;}
+
+      /* App becomes a row */
+      #app{flex-direction:row;height:100vh;height:100dvh;overflow:hidden;}
+
+      /* Nav becomes left sidebar */
+      .nav{
+        width:220px;flex-shrink:0;height:100vh;height:100dvh;
+        flex-direction:column;align-items:stretch;
+        border-top:none;border-right:1px solid var(--border);border-bottom:none;
+        padding:0 0 24px;justify-content:flex-start;
+        overflow:hidden;order:0;
+      }
+      .nav-sidebar-logo{
+        display:block;
+        padding:28px 24px 20px;
+        font-family:'DM Serif Display',serif;
+        font-size:20px;color:var(--green-400);
+        border-bottom:1px solid var(--border);
+        margin-bottom:12px;
+      }
+      .nav-item{
+        flex:none;flex-direction:row;justify-content:flex-start;
+        padding:12px 24px;gap:12px;border-radius:0;
+        font-size:14px;width:100%;height:auto;
+      }
+      .nav-icon{font-size:20px;width:24px;text-align:center;}
+      .nav-label{font-size:14px;letter-spacing:0;}
+      .nav-dot{display:none;}
+      .nav-item.active{background:var(--green-50);color:var(--green-500);}
+      .nav-item.active .nav-label{font-weight:600;}
+      [data-theme="dark"] .nav-item.active{background:var(--green-50);}
+
+      /* main-content fills remaining width as a column */
+      #main-content{
+        flex:1;display:flex;flex-direction:column;
+        height:100vh;height:100dvh;overflow:hidden;min-width:0;order:1;
+      }
+      .header{flex-shrink:0;}
+      .screens{flex:1;overflow:hidden;}
+      .screen{padding:0 0 32px;}
+
+      /* banner offset past sidebar */
+      #notif-banner{left:220px !important;}
+
+      /* content padding */
+      .greeting-card{margin:24px 40px 12px;}
+      .progress-wrap{margin:0 40px 8px;}
+      .timeline-section{margin:0 40px 10px;}
+      .habit-card{margin:0 40px 12px;}
+      .week-summary{margin:0 40px 12px;}
+      .food-section{padding:0 40px;}
+      .ex-section{padding:0 40px;}
+      .learn-topics{padding:16px 40px 0;}
+      .learn-hero{margin:24px 40px 0;}
+      .settings-section{padding:0 40px;}
+      .page-title{font-size:30px;padding:28px 40px 6px;}
+      .page-sub{padding:0 40px 16px;font-size:14px;}
+      .task-text{font-size:15px;}
+      .task-item{padding:14px 16px;}
+      .day-dot{width:44px;height:44px;font-size:15px;}
+      .greeting-text{font-size:24px;}
+      .topic-title{font-size:16px;}
+      .add-task-btn{font-size:14px;}
+
+      /* Modals centered */
+      .modal-overlay{align-items:center;}
+      .modal-sheet{border-radius:20px;max-width:580px;margin:0 auto;max-height:80vh;}
+      .detail-modal{align-items:center;}
+      .detail-sheet{border-radius:20px;max-width:580px;margin:0 auto;max-height:80vh;}
+
+      /* Toast */
+      .confirm-toast{left:260px;right:40px;bottom:32px;max-width:600px;}
+
+      /* Hover effects */
+      .task-item:hover{border-color:var(--green-200);background:var(--green-50);}
+      .task-item.done:hover{background:var(--green-50);}
+      .topic-card:hover{box-shadow:var(--shadow-lg);}
+      .suggest-item:hover{border-color:var(--green-200);background:var(--green-50);}
+      .nav-item:hover:not(.active){background:var(--gray-50);color:var(--text-secondary);}
+      .food-item:hover{box-shadow:var(--shadow);}
+    }
+
+    /* Large desktop (1400px+) */
+    @media (min-width:1400px){
+      .nav{width:260px;}
+      #notif-banner{left:260px !important;}
+      .greeting-card{margin:28px 60px 14px;}
+      .progress-wrap{margin:0 60px 8px;}
+      .timeline-section{margin:0 60px 12px;}
+      .habit-card{margin:0 60px 14px;}
+      .week-summary{margin:0 60px 14px;}
+      .food-section{padding:0 60px;}
+      .ex-section{padding:0 60px;}
+      .learn-topics{padding:20px 60px 0;}
+      .learn-hero{margin:28px 60px 0;}
+      .settings-section{padding:0 60px;}
+      .page-title{font-size:34px;padding:32px 60px 8px;}
+      .page-sub{padding:0 60px 20px;font-size:15px;}
+      .confirm-toast{left:300px;}
+    }
+    /* Safe area for notched phones (iPhone X+, some Android) */
+    .header{padding-top:env(safe-area-inset-top);height:calc(var(--header-h) + env(safe-area-inset-top));}
+  </style>
+</head>
+<body>
+<div id="splash">
+  <div class="splash-ring"></div>
+  <div class="splash-ring"></div>
+  <div class="splash-ring"></div>
+  <div class="splash-icon-wrap">
+    <div class="splash-leaves">🌿</div>
+  </div>
+  <div class="splash-title">Debloat Daily</div>
+  <div class="splash-sub">Feel lighter every day</div>
+  <div class="splash-dots">
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
+</div>
+
+<div id="app">
+  <nav class="nav" id="main-nav">
+    <div class="nav-sidebar-logo" id="nav-logo">🌿 Debloat Daily</div>
+    <button class="nav-item active" onclick="goTo('home',this)"><div class="nav-icon">🏠</div><div class="nav-label">Home</div><div class="nav-dot"></div></button>
+    <button class="nav-item" onclick="goTo('weekly',this)"><div class="nav-icon">📅</div><div class="nav-label">Weekly</div><div class="nav-dot"></div></button>
+    <button class="nav-item" onclick="goTo('food',this)"><div class="nav-icon">🥗</div><div class="nav-label">Food</div><div class="nav-dot"></div></button>
+    <button class="nav-item" onclick="goTo('exercise',this)"><div class="nav-icon">🏃</div><div class="nav-label">Exercise</div><div class="nav-dot"></div></button>
+    <button class="nav-item" onclick="goTo('learn',this)"><div class="nav-icon">🧠</div><div class="nav-label">Learn</div><div class="nav-dot"></div></button>
+    <button class="nav-item" onclick="goTo('settings',this)"><div class="nav-icon">⚙️</div><div class="nav-label">Settings</div><div class="nav-dot"></div></button>
+  </nav>
+
+  <div id="main-content">
+  <div class="header">
+    <div>
+      <div class="header-logo">🌿 Debloat Daily</div>
+      <div class="header-sub" id="header-date"></div>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+      <button class="icon-btn" onclick="requestNotifPermission()" title="Notifications">🔔</button>
+    </div>
+  </div>
+
+  <div id="notif-banner" style="position:fixed;top:60px;left:0;right:0;background:#4a9b6f;color:white;padding:14px 16px;font-size:13px;font-weight:500;z-index:9999;align-items:center;gap:10px;display:none;">
+    <span id="notif-text">💧 Time to drink water!</span>
+    <button style="margin-left:auto;background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.5);color:white;font-size:24px;font-weight:900;cursor:pointer;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;padding:0;" onclick="hideBanner()">×</button>
+  </div>
+
+  <div class="screens">
+
+    <!-- HOME -->
+    <div class="screen active" id="screen-home">
+      <div class="greeting-card">
+        <div class="greeting-day" id="greeting-day"></div>
+        <div class="greeting-text" id="greeting-text">Good morning! 🌱</div>
+        <div class="greeting-progress"><div class="greeting-fill" id="greeting-fill" style="width:0%"></div></div>
+        <div class="greeting-pct" id="greeting-pct">0% complete today</div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Today's Progress</span>
+          <span class="progress-pct" id="progress-pct">0%</span>
+        </div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div id="checklist-area"></div>
+    </div>
+
+    <!-- WEEKLY -->
+    <div class="screen" id="screen-weekly">
+      <div class="page-title">Weekly Tracker</div>
+      <div class="page-sub">Tap a day to mark it done</div>
+      <div id="week-summary-card" class="week-summary"></div>
+      <div id="habits-area"></div>
+      <div style="padding:0 16px 8px;">
+        <button class="add-task-btn" style="width:100%" onclick="openHabitModal()">＋ Add custom habit</button>
+      </div>
+    </div>
+
+    <!-- FOOD -->
+    <div class="screen" id="screen-food">
+      <div class="page-title">Food Guide</div>
+      <div class="page-sub">Eat smart to reduce bloating</div>
+      <div class="food-section">
+        <div class="food-label"><span>❌</span><span>AVOID</span><span class="food-label-badge avoid-badge">causes bloating</span></div>
+        <div class="food-item avoid"><div class="food-icon">🍜</div><div><div class="food-name">Instant Noodles</div><div class="food-reason">High sodium & preservatives — triggers puffiness</div></div></div>
+        <div class="food-item avoid"><div class="food-icon">🥤</div><div><div class="food-name">Softdrinks & Soda</div><div class="food-reason">Carbonation causes gas buildup in stomach</div></div></div>
+        <div class="food-item avoid"><div class="food-icon">🥫</div><div><div class="food-name">Salty / Canned Foods</div><div class="food-reason">Chips, canned goods — sodium retains water</div></div></div>
+        <div class="food-item avoid"><div class="food-icon">🍟</div><div><div class="food-name">Fried & Oily Foods</div><div class="food-reason">Slows digestion, causes heaviness & swelling</div></div></div>
+        <div class="food-item avoid"><div class="food-icon">🍞</div><div><div class="food-name">White Bread / Processed Carbs</div><div class="food-reason">Rapidly ferments in gut, producing excess gas</div></div></div>
+        <div class="food-item avoid"><div class="food-icon">🧃</div><div><div class="food-name">Fruit Juices & Sweet Drinks</div><div class="food-reason">High fructose feeds bad gut bacteria</div></div></div>
+      </div>
+      <div class="food-section">
+        <div class="food-label"><span>✅</span><span>EAT MORE</span><span class="food-label-badge eat-badge">debloat foods</span></div>
+        <div class="food-item eat"><div class="food-icon">🍚</div><div><div class="food-name">Rice</div><div class="food-reason">Easy to digest, gentle on stomach</div></div></div>
+        <div class="food-item eat"><div class="food-icon">🥚</div><div><div class="food-name">Eggs</div><div class="food-reason">Protein-rich, filling without bloating</div></div></div>
+        <div class="food-item eat"><div class="food-icon">🥬</div><div><div class="food-name">Kangkong, Squash & Carrots</div><div class="food-reason">Anti-inflammatory veggies, fiber-rich</div></div></div>
+        <div class="food-item eat"><div class="food-icon">🍌</div><div><div class="food-name">Banana & Papaya</div><div class="food-reason">Natural digestive enzymes, reduce puffiness</div></div></div>
+        <div class="food-item eat"><div class="food-icon">💧</div><div><div class="food-name">Water (8+ glasses/day)</div><div class="food-reason">Flushes sodium, reduces water retention</div></div></div>
+        <div class="food-item eat"><div class="food-icon">🫚</div><div><div class="food-name">Ginger Tea</div><div class="food-reason">Soothes gut, reduces inflammation & gas</div></div></div>
+        <div class="food-item eat"><div class="food-icon">🍋</div><div><div class="food-name">Lemon Water (morning)</div><div class="food-reason">Kickstarts digestion, alkalizes stomach</div></div></div>
+        <div class="food-item eat"><div class="food-icon">🥣</div><div><div class="food-name">Oatmeal</div><div class="food-reason">Soluble fiber feeds good gut bacteria</div></div></div>
+        <div class="food-item eat"><div class="food-icon">🐟</div><div><div class="food-name">Fish (bangus, tilapia)</div><div class="food-reason">Lean protein, omega-3 reduces inflammation</div></div></div>
+      </div>
+    </div>
+
+    <!-- EXERCISE -->
+    <div class="screen" id="screen-exercise">
+      <div class="page-title">Exercise Guide</div>
+      <div class="page-sub">10–15 min daily routine for debloating</div>
+      <div id="exercise-area"></div>
+    </div>
+
+    <!-- LEARN -->
+    <div class="screen" id="screen-learn">
+      <div class="learn-hero">
+        <div class="learn-hero-icon">🧠</div>
+        <div class="learn-hero-title">Learn About Bloating</div>
+        <div class="learn-hero-sub">Science-backed knowledge to understand your body and beat bloating for good.</div>
+      </div>
+      <div class="learn-topics" id="learn-topics"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="screen" id="screen-settings">
+      <div class="page-title">Settings</div>
+      <div class="page-sub">Customize your experience</div>
+      <div class="settings-section">
+        <div class="section-label">Appearance</div>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-icon">🌙</div>
+            <div class="settings-row-info"><div class="settings-row-label">Dark Mode</div><div class="settings-row-sub">Toggle dark/light theme</div></div>
+            <label class="toggle"><input type="checkbox" id="dark-toggle" onchange="setTheme(this.checked)"/><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="section-label">Notifications</div>
+        <div class="settings-group">
+          <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+            <div style="display:flex;align-items:center;gap:12px;width:100%;">
+              <div class="settings-row-icon">🔔</div>
+              <div class="settings-row-info">
+                <div class="settings-row-label">Phone Notifications</div>
+                <div class="settings-row-sub" id="notif-status-text">Checking...</div>
+              </div>
+            </div>
+            <button id="notif-permission-btn" onclick="requestNotifPermission()" style="width:100%;padding:11px;background:var(--green-400);color:white;border:none;border-radius:var(--radius-xs);font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;">Allow notifications</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-icon">🔕</div>
+            <div class="settings-row-info"><div class="settings-row-label">Enable Reminders</div><div class="settings-row-sub">In-app reminder banners</div></div>
+            <label class="toggle"><input type="checkbox" id="notif-toggle" onchange="saveNotifPref(this.checked)" checked/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-icon">🌅</div>
+            <div class="settings-row-info"><div class="settings-row-label">Morning Reminder</div><div class="settings-row-sub">Water + probiotic</div></div>
+            <input type="time" class="time-input" id="time-morning" value="07:00" onchange="saveTime('morning',this.value)"/>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-icon">☀️</div>
+            <div class="settings-row-info"><div class="settings-row-label">Afternoon Reminder</div><div class="settings-row-sub">Ginger tea</div></div>
+            <input type="time" class="time-input" id="time-afternoon" value="13:00" onchange="saveTime('afternoon',this.value)"/>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-icon">🌇</div>
+            <div class="settings-row-info"><div class="settings-row-label">Evening Reminder</div><div class="settings-row-sub">Light dinner</div></div>
+            <input type="time" class="time-input" id="time-evening" value="19:00" onchange="saveTime('evening',this.value)"/>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="section-label">Backup & Restore</div>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-icon">💾</div>
+            <div class="settings-row-info">
+              <div class="settings-row-label">Export My Progress</div>
+              <div class="settings-row-sub">Download a backup file to your phone</div>
+            </div>
+            <button class="danger-btn" style="background:var(--green-50);color:var(--green-500);border-color:var(--green-200)" onclick="exportData()">Export</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-icon">📂</div>
+            <div class="settings-row-info">
+              <div class="settings-row-label">Import & Restore</div>
+              <div class="settings-row-sub">Load a backup file to restore progress</div>
+            </div>
+            <button class="danger-btn" style="background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)" onclick="triggerImport()">Import</button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);padding:8px 4px;line-height:1.5;">
+          💡 Save your exported file to Google Drive or your gallery as a backup. Import it anytime to restore on any device.
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="section-label">Data</div>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-icon">🔄</div>
+            <div class="settings-row-info"><div class="settings-row-label">Reset Weekly Progress</div><div class="settings-row-sub">Clear this week's habit data</div></div>
+            <button class="danger-btn" onclick="resetWeekly()">Reset</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-icon">↩️</div>
+            <div class="settings-row-info"><div class="settings-row-label">Restore Default Tasks</div><div class="settings-row-sub">Bring back removed built-in tasks</div></div>
+            <button class="danger-btn" style="background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)" onclick="restoreDefaults()">Restore</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-icon">🗑️</div>
+            <div class="settings-row-info"><div class="settings-row-label">Clear All Data</div><div class="settings-row-sub">Reset everything to default</div></div>
+            <button class="danger-btn" onclick="clearAll()">Clear</button>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section" style="padding-bottom:8px">
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-icon">🌿</div>
+            <div class="settings-row-info"><div class="settings-row-label">Debloat Daily v2.0</div><div class="settings-row-sub">Made with care · Offline-first PWA</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end screens -->
+  </div><!-- end main-content -->
+
+  <!-- Hidden file input for import -->
+  <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importData(event)"/>
+
+  <!-- NOTIFICATION PERMISSION PROMPT -->
+  <div id="notif-prompt-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;align-items:flex-end;justify-content:center;">
+    <div style="background:var(--card);border-radius:24px 24px 0 0;width:100%;padding:28px 24px 40px;max-width:500px;">
+      <div style="font-size:48px;text-align:center;margin-bottom:12px;">🔔</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:22px;text-align:center;color:var(--text-primary);margin-bottom:8px;">Stay on track!</div>
+      <div style="font-size:14px;color:var(--text-secondary);text-align:center;line-height:1.6;margin-bottom:24px;">Allow Debloat Daily to send you reminders for your morning, afternoon and evening routine — even when the app is closed.</div>
+      <button onclick="acceptNotifPrompt()" style="width:100%;padding:15px;background:var(--green-400);color:white;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-bottom:10px;">Allow notifications</button>
+      <button onclick="dismissNotifPrompt()" style="width:100%;padding:13px;background:transparent;color:var(--text-muted);border:none;border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;">Not now</button>
+    </div>
+  </div>
+
+  <!-- HABIT MODAL -->
+  <div class="modal-overlay" id="habit-modal-overlay" onclick="closeHabitModalOutside(event)">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title" id="habit-modal-title">Add Habit</div>
+        <div class="modal-sub">Track a new weekly habit</div>
+      </div>
+      <div class="modal-body">
+        <div class="section-label" style="padding-top:4px">Choose an emoji</div>
+        <div id="habit-emoji-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;"></div>
+        <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;">
+          <div id="habit-emoji-preview" style="font-size:32px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:var(--green-50);border:2px solid var(--green-200);border-radius:14px;flex-shrink:0;">💪</div>
+          <div style="flex:1">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:5px;">Or type your own emoji</div>
+            <input class="custom-input" id="habit-emoji-input" placeholder="✏️ type emoji" maxlength="4" style="width:100%" oninput="previewEmoji(this.value)"/>
+          </div>
+        </div>
+        <div class="section-label">Habit name</div>
+        <input class="custom-input" id="habit-name-input" placeholder="e.g. Morning Walk" maxlength="30" style="width:100%;margin-bottom:16px;"/>
+        <div class="section-label">Times per week goal</div>
+        <div id="habit-freq-picker" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;"></div>
+        <button class="custom-add-btn" style="width:100%;padding:14px;font-size:15px;border-radius:var(--radius-sm)" onclick="saveHabit()">Save Habit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM TOAST (replaces confirm() which is blocked on Android) -->
+  <div class="confirm-toast" id="confirm-toast">
+    <div class="confirm-toast-msg" id="confirm-toast-msg">Remove this task?</div>
+    <div class="confirm-toast-sub" id="confirm-toast-sub">You can restore it in Settings → Restore Default Tasks</div>
+    <div class="confirm-toast-btns">
+      <button class="confirm-yes" id="confirm-yes-btn">Remove</button>
+      <button class="confirm-no" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- TASK DETAIL MODAL -->
+  <div class="detail-modal" id="detail-modal">
+    <div class="detail-backdrop" onclick="closeDetail()"></div>
+    <div class="detail-sheet">
+      <div class="detail-handle"></div>
+      <div class="detail-header">
+        <div class="detail-header-icon" id="detail-icon">💧</div>
+        <div class="detail-header-text">
+          <div class="detail-title" id="detail-title">Task</div>
+          <div class="detail-section-tag" id="detail-tag"></div>
+        </div>
+        <button class="detail-close" onclick="closeDetail()">×</button>
+      </div>
+      <div class="detail-body" id="detail-body"></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Add to Routine</div>
+        <div class="modal-sub">Pick suggestions or write your own</div>
+      </div>
+      <div class="modal-body">
+        <!-- Custom input -->
+        <div class="section-label" style="padding-top:4px">Your own task</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Add to section:</div>
+          <div class="section-picker" id="section-picker"></div>
+        </div>
+        <div class="custom-input-row">
+          <input class="custom-input" id="custom-task-input" placeholder="e.g. Drink warm lemon water" maxlength="60"/>
+          <button class="custom-add-btn" onclick="addCustomTask()">Add</button>
+        </div>
+        <!-- Suggestions -->
+        <div id="suggestions-list"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+<script>
+// ============================================================
+//  BASE SECTIONS & DEFAULT TASKS
+// ============================================================
+const BASE_SECTIONS = [
+  { id:'morning',   icon:'🌅', title:'Morning' },
+  { id:'daytime',   icon:'🏫', title:'During the Day' },
+  { id:'afternoon', icon:'🌇', title:'Afternoon' },
+  { id:'evening',   icon:'🌙', title:'Evening' },
+  { id:'sleep',     icon:'😴', title:'Before Sleep' },
+];
+
+const DEFAULT_TASKS = {
+  morning: [
+    {id:'drink-water-am', text:'Drink a glass of water', optional:false, icon:'💧',
+     why:'After 7–8 hours of sleep your body is mildly dehydrated. Drinking water first thing rehydrates cells, kickstarts your kidneys, and helps flush out overnight waste — directly reducing morning puffiness.',
+     steps:['Fill a glass (250–300ml) of water — warm or room temperature is best','Drink slowly, don\'t gulp — sipping gives your stomach time to absorb','Add a squeeze of lemon for extra digestion boost (optional)','Wait 10–15 min before eating breakfast'],
+     tip:'💡 Keep a glass of water beside your bed so it\'s the first thing you reach for.'},
+    {id:'exercise-am', text:'10–15 min exercise', optional:false, icon:'🏃',
+     why:'Morning movement wakes up your gut\'s "peristalsis" — the muscle contractions that push food and gas through your intestines. Even 10 minutes reduces bloating for hours afterward.',
+     steps:['Start with 1 min of gentle stretching to wake up muscles','Do 1 min jumping jacks to raise heart rate','1 min high knees to activate core and gut','1 min torso twists — this directly massages your intestines','Finish with 5 min light walk or marching in place'],
+     tip:'💡 Morning exercise on an empty stomach is more effective for gut motility than post-meal exercise.'},
+    {id:'probiotic', text:'Take probiotic', optional:false, icon:'💊',
+     why:'Probiotics replenish good gut bacteria that control gas production, digestion speed, and inflammation. Taking it consistently every morning builds up your gut microbiome over 4–6 weeks.',
+     steps:['Take your probiotic capsule or drink with a small glass of water','Best taken WITH food or right after — food protects bacteria from stomach acid','Do NOT take with hot drinks — heat kills live cultures','Take at the same time every day for best results'],
+     tip:'💡 Consistency matters more than timing. Every day at the same time builds habit and keeps bacteria levels stable.'},
+    {id:'breakfast', text:'Light breakfast', optional:false, icon:'🍳',
+     why:'A heavy breakfast overwhelms your digestive system early in the morning when gut enzymes are still warming up. Light foods digest quickly and don\'t cause the afternoon bloat that heavy breakfasts cause.',
+     steps:['Choose one: oatmeal, eggs, banana, or plain rice/lugaw','Avoid instant noodles, fried foods, or processed bread','Eat slowly — put your spoon/fork down between bites','Chew each bite at least 15–20 times before swallowing','Stop eating before you feel completely full (80% rule)'],
+     tip:'💡 Bananas and papaya are the best breakfast fruits for debloating — they contain enzymes that break down food in the stomach.'},
+  ],
+  daytime: [
+    {id:'drink-water-day', text:'Drink water', optional:false, icon:'💧',
+     why:'Staying hydrated during the day prevents your body from entering "water retention mode" where it holds onto sodium and fluids — causing afternoon facial and belly puffiness.',
+     steps:['Aim for at least 4–5 glasses spread throughout the day','Drink BEFORE meals, not during — wait 30 min after','Set a phone reminder every 2 hours to drink','If you feel hungry mid-morning, drink water first — thirst is often mistaken for hunger'],
+     tip:'💡 Your urine should be pale yellow. Dark yellow = you need more water immediately.'},
+    {id:'lunch', text:'Eat balanced lunch', optional:false, icon:'🍱',
+     why:'A balanced lunch with protein, vegetables, and moderate carbs keeps blood sugar stable — preventing the energy crash that triggers cravings for salty/sweet snacks that cause bloating.',
+     steps:['Fill half your plate with vegetables (kangkong, carrots, squash)','Quarter of plate: lean protein (fish, eggs, chicken, monggo)','Quarter of plate: rice or complex carbs','Eat veggies FIRST before rice — slows glucose spike','Don\'t eat at your desk or while on your phone — mindless eating causes bloating'],
+     tip:'💡 Filipino dishes like sinigang, tinola, and pinakbet are actually excellent anti-bloat meals — they\'re broth-based with vegetables.'},
+    {id:'ginger-tea-day', text:'Ginger tea', optional:true, icon:'🫚',
+     why:'Ginger contains gingerols and shogaols — compounds proven to speed up gastric emptying (how fast food leaves your stomach) and reduce intestinal cramping and gas.',
+     steps:['Boil 1–2 small slices of fresh ginger in 1 cup water for 5 minutes','Or use a ginger tea bag — steep for 3–5 min','Drink warm, not hot','Best taken 30 min after lunch when digestion is active','Drink slowly over 10–15 minutes'],
+     tip:'💡 Fresh ginger is 10x more potent than powdered. If budget allows, keep a small piece in your fridge — it lasts 2–3 weeks.'},
+  ],
+  afternoon: [
+    {id:'exercise-pm', text:'Exercise or 5–10 min walk', optional:false, icon:'🚶',
+     why:'The afternoon is when digestion slows down naturally. A short walk stimulates the vagus nerve which directly controls gut movement — helping push lunch through your system and preventing that "stuck" bloated feeling at the end of the day.',
+     steps:['Even a 5-minute walk outside is enough to trigger gut motility','If you can\'t go outside, march in place for 5 min','Try 10 slow torso twists while standing — wrings out the colon','Or do 5 min of the exercise guide routine','No phone during the walk — deep breathing helps more'],
+     tip:'💡 The 2–4PM window is when cortisol dips — this is when gas tends to build up. A walk during this time prevents evening bloating.'},
+  ],
+  evening: [
+    {id:'dinner', text:'Light dinner', optional:false, icon:'🌙',
+     why:'Your digestive system slows significantly after 6–7PM. Heavy dinners sit in your gut overnight, fermenting and producing gas — causing you to wake up bloated with a puffy face the next morning.',
+     steps:['Keep dinner to your smallest meal of the day','Soup-based meals are ideal: tinola, sinigang, or plain lugaw','Avoid fried foods, heavy meats, or large amounts of rice at night','Finish eating at least 2–3 hours before sleep','If still hungry after dinner, a small banana or warm ginger tea is fine'],
+     tip:'💡 If you always wake up bloated, the #1 fix is making dinner lighter. Try it for 3 days — the difference is usually immediate.'},
+    {id:'walk-eve', text:'Short evening walk', optional:false, icon:'🌟',
+     why:'A gentle evening walk after dinner is one of the most researched interventions for reducing bloating. Studies show it reduces gastric transit time by up to 30% — meaning dinner moves through faster and causes less overnight fermentation.',
+     steps:['Walk for 5–15 minutes at a comfortable pace — don\'t rush','Start at least 15 min after finishing dinner','Keep it gentle — this is not exercise, it\'s digestion aid','Breathe deeply while walking — diaphragmatic breathing massages the gut','Do a few standing torso twists at the end of the walk'],
+     tip:'💡 Make it enjoyable — walk around your street or even just around your house. The movement is what matters.'},
+    {id:'face-massage', text:'Facial massage', optional:true, icon:'😊',
+     why:'Facial lymphatic drainage massage moves stagnant fluid out of the face — directly reducing puffiness in the cheeks, under-eye area, and jawline. It works within minutes.',
+     steps:['Use clean hands with a drop of facial oil or moisturizer','Start at the center of your forehead and sweep outward toward temples','Gently press under your eyes and sweep outward toward ears','Use knuckles along your jawline and sweep toward ears','Press behind your ears and sweep down the sides of your neck','Repeat each movement 5–10 times — takes about 3–5 min total'],
+     tip:'💡 Do this right after your evening walk while your circulation is still elevated — results are more noticeable.'},
+  ],
+  sleep: [
+    {id:'no-heavy-food', text:'No heavy food after 8PM', optional:false, icon:'🚫',
+     why:'After 8PM your digestive enzymes drop significantly. Eating late means food sits undigested in your stomach for hours — fermenting, producing gas, and causing you to wake up feeling puffy and uncomfortable.',
+     steps:['Set a phone alarm at 7:30PM as your "last meal warning"','If hungry after 8PM: drink warm water or chamomile tea first','If still hungry: a small banana or a few crackers is OK','Avoid: chips, instant noodles, rice, or anything fried/heavy','Brush teeth after 8PM to remove the habit of late snacking'],
+     tip:'💡 Hunger after 8PM is usually thirst or boredom. Try drinking 1 glass of warm water and waiting 10 minutes — most late cravings disappear.'},
+    {id:'sleep', text:'Sleep 7–8 hours', optional:false, icon:'😴',
+     why:'Deep sleep is when your gut performs maintenance — repairing the intestinal lining, clearing out waste bacteria, regulating inflammation hormones, and draining facial lymph fluid. Less than 7 hours directly causes morning bloating.',
+     steps:['Set a consistent bedtime — same time every night (even weekends)','No food 2–3 hours before your bedtime','Dim your phone screen or use night mode 1 hour before bed','Do 5 slow deep breaths when lying down — activates rest-and-digest mode','Sleep on your LEFT side — gravity helps move gut waste overnight'],
+     tip:'💡 Sleeping on your LEFT side is one of the easiest free debloat hacks. Your stomach naturally empties faster in this position.'},
+  ],
+};
+
+// ============================================================
+//  BIG SUGGESTION LIBRARY
+// ============================================================
+const SUGGESTIONS = [
+  { cat:'💧 Hydration', items:[
+    {icon:'💧',name:'Warm lemon water (morning)',why:'Kickstarts digestion & flushes overnight toxins. The citric acid stimulates stomach acid and bile production before you eat anything.',
+     steps:['Squeeze half a lemon into a cup of warm (not hot) water','Drink it first thing — before coffee, before food','Sip slowly over 5 minutes','Wait 10–15 min before eating breakfast'],
+     tip:'Use warm water, not cold — cold water slows digestion instead of stimulating it.'},
+    {icon:'🫚',name:'Ginger tea after meals',why:'Gingerols in ginger speed up how fast food leaves your stomach (gastric emptying) and reduce intestinal cramping and gas buildup.',
+     steps:['Slice 2–3 thin pieces of fresh ginger','Boil in 1 cup of water for 5 minutes','Let cool slightly, drink warm — not hot','Drink 20–30 min after eating for best effect'],
+     tip:'Fresh ginger is far stronger than powdered. Keep a small piece in the fridge — it lasts 2–3 weeks.'},
+    {icon:'🌿',name:'Peppermint tea',why:'Menthol in peppermint relaxes the smooth muscles of the GI tract, releasing trapped gas and reducing cramping. One of the most studied natural remedies for IBS and bloating.',
+     steps:['Steep a peppermint tea bag in hot water for 5 minutes','Cover the cup while steeping to keep the menthol from evaporating','Drink warm after meals or when feeling bloated','Do not add milk — it neutralizes the effect'],
+     tip:'Best drunk in the afternoon or evening. Avoid right before bed if you have acid reflux — peppermint can relax the esophagus valve.'},
+    {icon:'🍵',name:'Green tea (no sugar)',why:'EGCG antioxidants in green tea reduce gut inflammation and feed beneficial gut bacteria. Mild caffeine also stimulates bowel movement without the harshness of coffee.',
+     steps:['Steep green tea bag for 2–3 min only — longer makes it bitter','Drink warm, no sugar, no milk','Best between meals — not on empty stomach','1–2 cups per day is ideal'],
+     tip:'Avoid instant green tea powders — they have very little actual EGCG and often contain sugar.'},
+    {icon:'💦',name:'8 glasses of water daily',why:'Dehydration triggers water retention — your body holds onto fluid when it thinks water is scarce. Drinking enough flushes sodium and reduces puffiness in the face and belly.',
+     steps:['Drink 1 glass upon waking up','1 glass 30 min before each meal','1 glass mid-morning and mid-afternoon','1 glass before bed (small)','Set phone reminders every 2 hours if you forget'],
+     tip:'Your urine color is the best guide: pale yellow = good, dark yellow = drink more now, clear = you\'re over-hydrated.'},
+    {icon:'🥒',name:'Cucumber-infused water',why:'Cucumbers contain quercetin, a natural anti-inflammatory that reduces swelling. They\'re also a natural diuretic — they help your kidneys flush excess water and sodium.',
+     steps:['Slice half a cucumber into a water bottle or jug','Add mint leaves or lemon for extra flavor','Let it infuse in the fridge for at least 1 hour','Drink throughout the day — refill with water as you go'],
+     tip:'Make a batch the night before so it\'s ready in the morning. The longer it infuses, the stronger the flavor.'},
+    {icon:'🌾',name:'Barley water',why:'Traditional Filipino remedy used for generations. Barley is rich in beta-glucan fiber that feeds good gut bacteria and reduces inflammation. Also a gentle diuretic.',
+     steps:['Boil ¼ cup pearl barley in 4 cups water for 30–45 min','Strain out the barley grains','Add a little lemon or a pinch of salt if desired','Drink warm or chilled throughout the day'],
+     tip:'You can eat the cooked barley separately as a fiber-rich side dish — nothing wasted.'},
+    {icon:'🍋',name:'Apple cider vinegar drink',why:'ACV improves stomach acid levels which helps break down food more completely — less undigested food in the gut means less fermentation and gas.',
+     steps:['Mix 1 tablespoon ACV in 1 large glass of water','Add honey to taste if too sour','Drink 15–20 min before a meal','Never drink ACV straight — it damages tooth enamel'],
+     tip:'Start with just 1 teaspoon if your stomach is sensitive, then gradually increase to 1 tablespoon.'},
+  ]},
+  { cat:'🥗 Eating Habits', items:[
+    {icon:'🍽️',name:'Eat slowly & chew well',why:'Eating fast causes you to swallow air (aerophagia) which directly fills your stomach and intestines with gas. Chewing thoroughly also pre-digests food so your gut doesn\'t have to work as hard.',
+     steps:['Put your utensil down between every bite','Chew each bite 15–20 times before swallowing','Take a breath between bites','Turn off screens while eating — distracted eating leads to faster eating','Aim for meals to take at least 15–20 minutes'],
+     tip:'Try eating with chopsticks or your non-dominant hand — it forces you to slow down automatically.'},
+    {icon:'🥣',name:'Small, frequent meals',why:'Large meals overwhelm your digestive enzymes. Smaller portions mean food gets broken down more completely, less ferments in the gut, and less gas is produced.',
+     steps:['Instead of 3 big meals, aim for 4–5 smaller ones','Each meal should leave you feeling 70–80% full — not stuffed','Space meals 2.5–3 hours apart','Keep healthy snacks ready: banana, boiled egg, crackers'],
+     tip:'Your stomach is roughly the size of your fist. Meals that fill more than double that size are too large for optimal digestion.'},
+    {icon:'⏰',name:'No food 2–3 hrs before bed',why:'After 7–8PM your digestive enzymes drop dramatically. Food eaten late sits in your stomach undigested for hours, ferments, produces gas, and causes you to wake up bloated.',
+     steps:['Set a phone alarm at 7:30PM as your last meal warning','If hungry after the cutoff: drink warm water or chamomile tea first','Wait 10 min — hunger usually passes','If still hungry: a small banana or a few plain crackers is acceptable'],
+     tip:'Brushing your teeth right after your last meal is a powerful psychological signal that eating is done for the day.'},
+    {icon:'🚫',name:'Avoid eating when stressed',why:'Stress activates your fight-or-flight system which diverts blood away from your digestive organs. Eating while stressed means food is barely digested — it sits and ferments instead.',
+     steps:['Take 3 slow deep breaths before eating any meal','If stressed, wait 5–10 min before starting to eat','Eat away from your study area or workspace','No arguments or serious conversations during meals'],
+     tip:'Even 60 seconds of calm breathing before eating measurably improves digestive enzyme output.'},
+    {icon:'🥗',name:'Eat veggies before rice/carbs',why:'Eating fiber (vegetables) before carbohydrates slows glucose absorption — preventing blood sugar spikes that cause the afternoon energy crash and cravings for more bloating foods.',
+     steps:['Start every meal by eating your vegetable side first','Finish all veggies before touching the rice or main carb','Then eat your protein','Rice/carbs come last'],
+     tip:'Studies show this simple order change reduces blood sugar spikes by up to 37% — without changing what you eat at all.'},
+    {icon:'🍚',name:'Eat plain lugaw when bloated',why:'Lugaw (rice porridge) is one of the easiest foods for your gut to process. It requires minimal digestive enzyme work, is gentle on inflamed gut lining, and provides energy without causing more gas.',
+     steps:['Cook plain white rice with extra water (4:1 water to rice ratio)','Add a small slice of ginger while cooking','Eat warm and slowly','Avoid adding strong toppings — keep it simple when bloated'],
+     tip:'This is your recovery meal for bad bloating days. Think of it as giving your gut a rest day.'},
+    {icon:'🫙',name:'Add fermented foods (atchara)',why:'Fermented foods contain live bacteria (probiotics) that directly colonize your gut and compete with gas-producing bad bacteria. Atchara is the most accessible Filipino fermented food.',
+     steps:['Have a small serving of atchara (2–3 tablespoons) with lunch or dinner','Start small — too much at once can cause temporary extra gas as gut adjusts','Aim for at least 3–4 servings per week','Homemade atchara has more live cultures than commercially-processed versions'],
+     tip:'The sour/tangy taste of atchara = lactic acid from live fermentation = exactly what your gut needs.'},
+    {icon:'🫐',name:'Eat papaya after heavy meals',why:'Papaya contains papain — a powerful digestive enzyme that breaks down protein. Eating it after a heavy meal significantly speeds up digestion and reduces the bloated, heavy feeling.',
+     steps:['Eat a small serving of ripe papaya after meals — not before','Fresh papaya works best — green/unripe has more papain but is more sour','A palm-sized piece is enough','Combine with a small piece of pineapple for double enzyme effect (bromelain + papain)'],
+     tip:'Papaya is cheap and widely available in the Philippines. Make it your go-to post-meal fruit instead of sweetened desserts.'},
+  ]},
+  { cat:'🏃 Movement', items:[
+    {icon:'🚶',name:'10-min walk after every meal',why:'Walking immediately after eating stimulates peristalsis — the muscle contractions that push food through your intestines. Even 10 minutes cuts gastric transit time by up to 30%.',
+     steps:['Start walking within 15 minutes of finishing your meal','Walk at a comfortable, gentle pace — no rushing','Aim for at least 1,000 steps (roughly 10 min)','Swing your arms naturally — this engages your core and helps gut movement','Deep breathe while walking — diaphragm movement massages the intestines'],
+     tip:'Even walking slowly around your house or room counts. The movement is what matters, not the pace or location.'},
+    {icon:'🧘',name:'Morning yoga (5–10 min)',why:'Yoga twisting poses physically compress and rotate the intestines — literally wringing out trapped gas and stimulating bowel movement. Studies show morning yoga reduces chronic bloating significantly.',
+     steps:['Start lying down — hug both knees to chest for 30 seconds','Seated spinal twist: sit cross-legged, twist right, hold 20 sec, then left','Cat-cow: on all fours, alternate arching and rounding your back 10 times','Child\'s pose: hold for 30–60 seconds — directly compresses the colon','End with 5 deep belly breaths in a comfortable position'],
+     tip:'YouTube "morning yoga for digestion" — there are great 5-minute routines specifically targeting gut health.'},
+    {icon:'🤸',name:'Cat-Cow stretches',why:'Cat-cow is a rhythmic spinal movement that massages your abdominal organs from outside. The alternating compression and expansion directly stimulates the intestinal wall and moves trapped gas.',
+     steps:['Get on all fours — hands under shoulders, knees under hips','Cat: exhale and round your back up like a scared cat — tuck belly in','Cow: inhale and drop your belly down, lift your head and tailbone','Move slowly between the two — 1 breath per movement','Do 10–15 repetitions'],
+     tip:'Focus on making the movement as slow and big as possible — a gentle cat-cow does much less than a deliberate, full-range one.'},
+    {icon:'💃',name:'Dancing for 10 min',why:'Dancing combines rhythmic movement, arm swinging, and core engagement — all of which stimulate lymphatic drainage (reduces puffiness) and gut motility simultaneously. And it\'s fun.',
+     steps:['Play your favorite music and just move freely','No specific moves required — swaying, stepping, arm movements all work','Try to include some side-to-side twisting — this is best for the gut','Aim for at least 10 minutes, enough to feel slightly warm'],
+     tip:'Even dancing alone in your room before school counts. Research shows enjoyment during exercise increases its health benefits.'},
+    {icon:'🚴',name:'Stationary bike (10 min)',why:'Cycling has one of the highest gut motility benefits of any exercise. The rhythmic leg movement and core engagement directly reduce intestinal transit time and gas buildup.',
+     steps:['10 minutes at a comfortable pace — you should be able to talk','Sit upright rather than hunched — good posture keeps abdominal organs uncompressed','Best done 30–60 min after eating','If no bike: simulate by lying on your back and pedaling your legs in the air'],
+     tip:'No bike? The air bicycle (lying on back, legs pedaling in the air) is surprisingly effective for moving trapped intestinal gas.'},
+    {icon:'🏊',name:'Swimming or walking in water',why:'Hydrostatic water pressure acts like a gentle full-body compression that aids lymphatic drainage and gut movement. Swimming is also extremely low-impact — gentle on your body while effective for digestion.',
+     steps:['Even standing or slowly walking in a pool works','Gentle laps or water walking for 15–20 min','The water temperature should be comfortable — not too cold','If no pool: a warm bath with some movement of legs achieves a mild version'],
+     tip:'The Philippines has many community pools. Swimming 2–3x a week is one of the most complete debloat activities available.'},
+    {icon:'🧎',name:'Child\'s pose (yoga)',why:'Child\'s pose folds your torso over your legs — this directly compresses the ascending and descending colon, physically squeezing out trapped gas like squeezing a tube of toothpaste.',
+     steps:['Kneel on a mat or soft floor, big toes touching, knees apart','Slowly lower your forehead to the floor, arms extended forward','Breathe deeply into your belly — feel your stomach press against your thighs','Hold for 30–60 seconds, breathing slowly','Come up slowly to avoid dizziness'],
+     tip:'Do this pose whenever you feel a gas cramp — it usually provides relief within 60 seconds.'},
+    {icon:'🦵',name:'Legs-up-the-wall pose',why:'Reversing the direction of gravity helps stagnant lymphatic fluid drain back from the legs and lower body — directly reducing lower belly puffiness and leg swelling that builds up during the day.',
+     steps:['Sit sideways against a wall, then swing your legs up as you lie back','Your legs should be straight up the wall, body perpendicular','Keep arms relaxed at your sides','Hold for 2–5 minutes, breathing slowly','Come out slowly — roll to one side first before sitting up'],
+     tip:'This is an excellent evening pose. Do it before sleep to drain the day\'s fluid buildup and wake up with a less puffy face.'},
+  ]},
+  { cat:'🌿 Gut Health', items:[
+    {icon:'💊',name:'Take probiotic supplement',why:'Probiotic supplements deliver concentrated doses of specific beneficial bacteria strains directly to your gut. Consistent daily use over 4–6 weeks measurably shifts gut flora composition toward less gas-producing bacteria.',
+     steps:['Take your probiotic at the same time every day — morning is ideal','Take WITH food or right after eating — stomach acid is less harsh when you\'ve eaten','Do NOT take with hot drinks — heat above 40°C kills live cultures','Store in the fridge unless label says otherwise','Take consistently — missing doses reduces the colonization effect'],
+     tip:'Look for probiotics with at least 1 billion CFU and multiple strains (Lactobacillus and Bifidobacterium together are most researched for bloating).'},
+    {icon:'🫙',name:'Eat yogurt (no sugar)',why:'Plain yogurt contains live Lactobacillus cultures that directly compete with gas-producing bacteria in your gut. It\'s the most affordable and accessible probiotic food available.',
+     steps:['Choose plain yogurt — flavored varieties often have more sugar than candy bars','Have a small serving (½ cup) daily, ideally with breakfast or as a snack','Avoid heating yogurt — it kills the live cultures','If you\'re lactose sensitive, start with just 2–3 tablespoons and increase slowly'],
+     tip:'Add sliced banana and a tiny drizzle of honey for taste — banana is a prebiotic that feeds the good bacteria in the yogurt.'},
+    {icon:'🌾',name:'Add psyllium husk to water',why:'Psyllium husk is pure soluble fiber that forms a gel in your intestines — this gel absorbs excess gas, slows sugar absorption, and bulks up stool to reduce constipation-related bloating.',
+     steps:['Mix 1 teaspoon psyllium husk in a large glass of water','Stir quickly and drink immediately — it gels fast','Follow with another full glass of plain water','Start with ½ teaspoon if new to it — your gut needs time to adjust','Take it away from medications — fiber can reduce absorption of some medicines'],
+     tip:'Available in Mercury Drug and most pharmacies in the Philippines under the brand "Konsyl" or generic psyllium husk. Very affordable.'},
+    {icon:'🧄',name:'Add garlic to meals (cooked)',why:'Garlic contains inulin, a prebiotic fiber that specifically feeds Bifidobacterium — the "good" gut bacteria most responsible for reducing bloating and gas. It\'s essentially fertilizer for your gut garden.',
+     steps:['Add 1–2 cloves of garlic to your lunch or dinner while cooking','Cooking garlic reduces its harsh compounds — cooked garlic is gentler than raw','Mince or slice and sauté with your vegetables or protein','Even small amounts (half a clove) provide prebiotic benefit'],
+     tip:'If raw garlic causes you gas, always cook it. Cooking breaks down the fructans that sensitive guts react to, while preserving the prebiotic inulin.'},
+    {icon:'🫚',name:'Cook with coconut oil',why:'Coconut oil contains medium-chain fatty acids (MCFAs) including lauric acid — these have natural antimicrobial properties that help reduce overgrowth of bad gut bacteria without harming good bacteria.',
+     steps:['Replace your regular cooking oil with coconut oil for sautéing and frying','Use small amounts — 1 tablespoon per meal is enough','It\'s solid at room temperature — just scoop and melt in the pan','Works well with kangkong, eggs, fish, and most Filipino dishes'],
+     tip:'Virgin coconut oil (VCO) is the most beneficial. Refined coconut oil still works for cooking but has fewer bioactive compounds.'},
+    {icon:'🫛',name:'Eat mung beans (monggo)',why:'Monggo is one of the best gut health foods in Filipino cuisine — it\'s high in both soluble and insoluble fiber, easy to digest, and contains resistant starch that feeds beneficial gut bacteria.',
+     steps:['Prepare ginisang monggo with garlic, tomatoes, and leafy greens','Eat as a regular lunch or dinner — even 2–3x per week has significant benefit','Let it cool slightly before eating — cooled legumes have more resistant starch','Don\'t add instant seasoning — the salt content can cause water retention and worsen bloating'],
+     tip:'Monggo is one of the cheapest, most accessible gut superfoods in the Philippines. It\'s also high in protein making it filling without causing the bloat that meat can cause.'},
+  ]},
+  { cat:'😴 Sleep & Recovery', items:[
+    {icon:'😴',name:'Sleep 7–8 hours',why:'During deep sleep your gut performs critical maintenance: clearing waste bacteria, repairing intestinal lining, regulating inflammation, and draining the lymphatic system that removes facial puffiness.',
+     steps:['Set the same bedtime every night — even weekends (consistency matters most)','Start a wind-down routine 30 min before bed: dim lights, no heavy food','Put your phone on Do Not Disturb','Try to sleep on your left side — improves overnight gut emptying','Keep your room cool and dark'],
+     tip:'Even 1 week of consistent sleep timing dramatically reduces morning bloating — the gut circadian rhythm is that responsive to schedule.'},
+    {icon:'📵',name:'No phone 30 min before bed',why:'Blue light from screens suppresses melatonin — the hormone that not only makes you sleepy but also regulates your gut\'s overnight repair cycle. Less melatonin = worse gut maintenance = more morning bloating.',
+     steps:['Set a phone alarm 30 min before your target bedtime as a "screens off" warning','Place your phone face-down across the room or in another room','Replace screen time with: reading, stretching, journaling, or breathing exercises','If you must use your phone, enable night mode and maximum dimming'],
+     tip:'Night mode (orange tint) helps but doesn\'t eliminate the problem. Physical distance from the screen is more effective than filters.'},
+    {icon:'🛁',name:'Warm bath before sleep',why:'A warm bath raises then drops your core body temperature when you get out — this temperature drop is a powerful sleep signal. It also relaxes gut smooth muscles, reducing nighttime cramping and gas.',
+     steps:['Bathe with warm (not hot) water — 38–40°C is ideal','Spend at least 10–15 minutes, not just a quick rinse','Gentle clockwise stomach massage in the shower or bath','Get out and go to bed within 30–60 minutes of bathing','Avoid cold showers right before bed — the opposite temperature effect can be stimulating'],
+     tip:'If a full bath isn\'t possible, even a warm foot soak for 10 minutes has a measurable relaxation effect on the gut.'},
+    {icon:'🌡️',name:'Keep room cool at night',why:'Your body temperature naturally drops during sleep to enable deep sleep stages. A cool room (18–22°C) facilitates this drop, leading to better quality deep sleep where gut repair actually happens.',
+     steps:['Aim for a room temperature between 18–22°C if you have aircon','If no aircon: use an electric fan pointed away from you (indirect airflow)','Wear light, breathable sleepwear — cotton or bamboo fabrics','Keep windows open if safe and weather permits'],
+     tip:'Even a small difference in room temperature has a big effect on sleep quality. If you often wake up sweating, that\'s a sign your room is too warm for optimal gut recovery.'},
+    {icon:'🧘',name:'5-min breathing before sleep',why:'Slow deep breathing activates your parasympathetic nervous system — the "rest and digest" mode. This directly increases blood flow to digestive organs and signals your gut to begin its overnight repair work.',
+     steps:['Lie on your back in bed, hands on your belly','Inhale slowly through your nose for 4 counts — feel your belly rise','Hold for 1–2 seconds','Exhale slowly through your mouth for 6 counts — feel your belly fall','Repeat for 5 minutes — about 20–30 breaths'],
+     tip:'The exhale being longer than the inhale is the key. A longer exhale specifically activates the parasympathetic (rest-and-digest) response more than equal breathing.'},
+  ]},
+  { cat:'🧴 Self-Care', items:[
+    {icon:'💆',name:'Belly massage (clockwise)',why:'Clockwise massage directly follows the path of your large intestine (colon). This mechanical pressure moves trapped gas and stool through the colon — often providing immediate relief from bloating.',
+     steps:['Lie on your back with knees bent, stomach muscles relaxed','Place both hands on your lower right abdomen (hip bone area)','Apply gentle but firm pressure and move CLOCKWISE in a large circle','Follow the path: up the right side, across the top, down the left side','Do 10–15 slow circles, breathing deeply throughout'],
+     tip:'Do this massage with a small amount of warm coconut or olive oil. The warmth and lubrication makes the massage more effective and is soothing on the skin.'},
+    {icon:'😊',name:'Facial lymphatic massage',why:'Your face has a lymphatic system that drains fluid from tissues. When it\'s sluggish (from poor sleep, high salt, or stress), fluid pools — causing the puffy face look. Massage physically moves this fluid toward lymph nodes.',
+     steps:['Apply a few drops of facial oil or moisturizer to clean hands','Start at the center of your forehead, sweep outward toward temples — 5 times','Gently press under your eyes with ring fingers, sweep toward ears — 5 times','Use knuckles along your jaw, sweep toward your ears — 5 times','Press behind your ears and sweep down the sides of your neck — 5 times'],
+     tip:'Doing this massage after storing a jade roller or gua sha tool in the fridge makes it more effective — cool temperature reduces inflammation faster.'},
+    {icon:'🚿',name:'Cold water on face (morning)',why:'Cold water causes vasoconstriction — blood vessels in your face temporarily tighten and then dilate. This pump action helps move stagnant lymphatic fluid and reduces morning facial puffiness within minutes.',
+     steps:['Wash your face with cold water for 30–60 seconds in the morning','Or use an ice cube wrapped in a clean cloth — gently press on puffy areas','Focus on under-eye area and cheeks where puffiness is most visible','Pat dry gently — don\'t rub'],
+     tip:'Keep a small bowl of water in the fridge overnight. In the morning, splash your face with it — far more effective than just running cold tap water.'},
+    {icon:'🧘',name:'5-min stress relief breathing',why:'Chronic stress is one of the top hidden causes of bloating. Cortisol (stress hormone) directly slows digestion and increases intestinal permeability. Even 5 minutes of breathing visibly reduces cortisol levels.',
+     steps:['Sit comfortably or lie down','Breathe in through your nose for 4 counts','Hold for 4 counts','Breathe out through your mouth for 8 counts (double the inhale)','Repeat for 5 minutes, especially before meals or when feeling bloated'],
+     tip:'This specific 4-4-8 pattern is called "extended exhale breathing" and is one of the fastest evidence-based ways to activate the parasympathetic (rest and digest) nervous system.'},
+    {icon:'📓',name:'Write what you ate today',why:'Food journaling helps you identify your personal trigger foods — specific items that consistently cause your bloating. After 2–3 weeks of tracking, patterns become obvious. What triggers one person may be fine for another.',
+     steps:['After dinner, write down everything you ate today (a notes app works fine)','Rate your bloating level today: 1 (none) to 5 (very bloated)','Note your sleep hours and stress level','After 2 weeks, look for patterns: which foods correlate with your worst days?','Eliminate suspected triggers for 1 week and see if symptoms improve'],
+     tip:'Common personal triggers that many people don\'t suspect: dairy, beans, onions, and artificial sweeteners. You won\'t know YOUR triggers without tracking.'},
+    {icon:'🌞',name:'Get morning sunlight (5 min)',why:'Morning sunlight exposure sets your circadian rhythm — your body\'s 24-hour internal clock. This clock controls when your gut produces digestive enzymes, when it\'s most active, and when it rests for repair.',
+     steps:['Step outside within 30–60 minutes of waking up','Look toward (not directly at) the bright sky for 5 minutes','No sunglasses for this — light needs to reach your retinas','Even on cloudy days, outdoor light is 10x stronger than indoor light','Combine with your morning water for a double morning routine'],
+     tip:'This is completely free and takes only 5 minutes. It\'s one of the most underrated gut health habits — sunlight literally programs your digestive system for the day.'},
+  ]},
+];
+
+// ============================================================
+//  EXERCISES
+// ============================================================
+const EXERCISES = [
+  { section:'🔥 Warm-Up', items:[
+    {icon:'⭐',name:'Jumping Jacks',detail:'1 minute • Full body warm-up',secs:60},
+    {icon:'🦵',name:'High Knees',detail:'1 minute • Gets heart rate up',secs:60},
+    {icon:'🌀',name:'Torso Twists',detail:'1–2 minutes • Loosens the core',secs:90},
+  ]},
+  { section:'💪 Core & Digestion', items:[
+    {icon:'🧘',name:'Knee-to-Chest',detail:'3 reps × 20 sec • Relieves bloating gas',secs:60},
+    {icon:'🙇',name:'Forward Bend',detail:'2 reps × 20 sec • Stretches lower back',secs:40},
+    {icon:'🐱',name:'Cat-Cow Stretch',detail:'10 slow reps • Massages abdominal organs',secs:60},
+  ]},
+  { section:'🚶 Cardio', items:[
+    {icon:'🚶',name:'Light Walking / Marching',detail:'3–5 minutes • Improves gut movement',secs:240},
+  ]},
+  { section:'🧘 Wind-Down', items:[
+    {icon:'🧎',name:'Child\'s Pose',detail:'30–60 sec • Compresses belly, releases gas',secs:45},
+    {icon:'🦵',name:'Legs-Up-the-Wall',detail:'1–2 min • Reduces leg & belly puffiness',secs:90},
+  ]},
+];
+
+// ============================================================
+//  LEARN CONTENT
+// ============================================================
+const LEARN_TOPICS = [
+  {
+    id:'causes', icon:'😣', color:'amber',
+    title:'Why Bloating Happens',
+    preview:'5 main causes of face & stomach puffiness',
+    content:`
+      <div class="did-you-know">
+        <strong>Did you know?</strong> Bloating affects up to 30% of people regularly. Most causes are completely fixable through daily habits.
+      </div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-num">70%</div><div class="stat-label">of bloating is diet-related</div></div>
+        <div class="stat-box"><div class="stat-num">30%</div><div class="stat-label">is from stress & sleep</div></div>
+      </div>
+      <div class="learn-section-title">The 5 Main Causes</div>
+      <div class="fact-box amber"><div class="fact-title">1. 🥤 Gas from Food & Drinks</div><div class="fact-text">Carbonated drinks, beans, and processed foods ferment in your gut and produce gas. This stretches the intestines and causes that "full" uncomfortable feeling.</div></div>
+      <div class="fact-box blue"><div class="fact-title">2. 💧 Water Retention (Sodium)</div><div class="fact-text">Too much salt makes your body hold onto water — especially in your face, under eyes, and belly. Instant noodles alone can have 1,500–2,000mg of sodium (your daily limit is 2,300mg).</div></div>
+      <div class="fact-box green"><div class="fact-title">3. 🦠 Gut Bacteria Imbalance</div><div class="fact-text">When bad bacteria outnumber good ones, they produce extra gas and toxins. This causes chronic bloating, irregular bowel movements, and fatigue.</div></div>
+      <div class="fact-box purple"><div class="fact-title">4. 😰 Stress & Anxiety</div><div class="fact-text">Your gut has its own nervous system (the "second brain"). Stress triggers it and slows digestion — food sits longer in your stomach, fermenting and causing bloat.</div></div>
+      <div class="fact-box red"><div class="fact-title">5. 😴 Poor Sleep</div><div class="fact-text">Your gut repairs itself during deep sleep. Less than 7 hours means slower gut motility, more inflammation, and higher cortisol — all causing facial and belly puffiness.</div></div>
+      <div class="learn-section-title">Myth vs Fact</div>
+      <div class="myth-row">
+        <div class="myth-col bad"><div class="myth-label">❌ Myth</div>"Bloating means I ate too much"</div>
+        <div class="myth-col good"><div class="myth-label">✅ Fact</div>Even small amounts of trigger foods can cause bloating — it's about WHAT you eat, not just how much</div>
+      </div>
+      <div class="myth-row">
+        <div class="myth-col bad"><div class="myth-label">❌ Myth</div>"Drinking water makes bloating worse"</div>
+        <div class="myth-col good"><div class="myth-label">✅ Fact</div>Water actually helps flush sodium and reduce water retention — dehydration worsens bloating</div>
+      </div>
+    `
+  },
+  {
+    id:'gut', icon:'🦠', color:'green',
+    title:'Gut Health & Probiotics',
+    preview:'Your gut microbiome and how to fix it',
+    content:`
+      <div class="did-you-know">
+        <strong>Did you know?</strong> You have about 38 trillion bacteria in your gut — more than the number of cells in your whole body. These bacteria control digestion, mood, immunity, and even skin health.
+      </div>
+      <div class="learn-section-title">What is the Gut Microbiome?</div>
+      <div class="fact-box green"><div class="fact-title">🌱 Your Gut Garden</div><div class="fact-text">Think of your gut like a garden. Good bacteria are the plants — they need to be fed and watered. Bad bacteria are weeds. When you eat junk food, you water the weeds. When you eat fiber and fermented foods, you grow healthy plants.</div></div>
+      <div class="learn-section-title">Signs of an Unhealthy Gut</div>
+      <ul class="tip-list">
+        <li data-icon="😣">Frequent bloating and gas after meals</li>
+        <li data-icon="😴">Constant fatigue even with enough sleep</li>
+        <li data-icon="🤯">Brain fog and difficulty concentrating</li>
+        <li data-icon="😖">Irregular bowel movements (constipation or diarrhea)</li>
+        <li data-icon="😟">Skin issues like acne or dull skin</li>
+        <li data-icon="😰">Food intolerances that worsen over time</li>
+      </ul>
+      <div class="learn-section-title">What Probiotics Actually Do</div>
+      <div class="fact-box blue"><div class="fact-title">💊 How Probiotics Work</div><div class="fact-text">Probiotics are live bacteria you take as supplements or eat in fermented foods. They colonize your gut and crowd out bad bacteria. This reduces gas production, speeds up digestion, and reduces inflammation — directly reducing bloating.</div></div>
+      <div class="learn-section-title">Best Probiotic Foods (Affordable)</div>
+      <ul class="tip-list">
+        <li data-icon="🥛">Plain yogurt (no sugar) — cheap and accessible</li>
+        <li data-icon="🥬">Atchara (pickled papaya) — traditional Filipino probiotic</li>
+        <li data-icon="🫙">Kimchi — if available, excellent gut booster</li>
+        <li data-icon="🍵">Kombucha — fermented tea, if budget allows</li>
+        <li data-icon="💊">Probiotic capsule — most reliable daily dose</li>
+      </ul>
+      <div class="learn-section-title">How to Rebuild Gut Health</div>
+      <ol class="step-list">
+        <li><div class="step-num">1</div><div>Remove triggers — stop eating junk, instant noodles, and soda for 2 weeks</div></li>
+        <li><div class="step-num">2</div><div>Add prebiotics — eat garlic, onion, banana, and oats to feed good bacteria</div></li>
+        <li><div class="step-num">3</div><div>Take a probiotic daily — morning, with or after food</div></li>
+        <li><div class="step-num">4</div><div>Eat fermented foods — atchara, yogurt, or kimchi at least 3x/week</div></li>
+        <li><div class="step-num">5</div><div>Be patient — gut flora takes 4–6 weeks to noticeably shift</div></li>
+      </ol>
+    `
+  },
+  {
+    id:'exercise', icon:'🏃', color:'blue',
+    title:'How Exercise Helps Digestion',
+    preview:'Why movement is medicine for your gut',
+    content:`
+      <div class="did-you-know">
+        <strong>Did you know?</strong> Even a 10-minute walk after a meal can speed up gastric emptying by up to 30% — meaning food moves through your stomach faster and you feel less bloated.
+      </div>
+      <div class="learn-section-title">The Gut-Movement Connection</div>
+      <div class="fact-box blue"><div class="fact-title">⚡ Peristalsis — Your Gut's Engine</div><div class="fact-text">Your intestines move food through a process called peristalsis — rhythmic muscle contractions. Exercise stimulates this process. Without movement, food sits stagnant in the gut and ferments, producing gas and bloating.</div></div>
+      <div class="learn-section-title">Best Exercises for Debloating</div>
+      <ul class="tip-list">
+        <li data-icon="🚶">Walking — simplest and most effective. Even 10 min after eating helps</li>
+        <li data-icon="🧘">Yoga twists — physically wring out the colon and move trapped gas</li>
+        <li data-icon="🤸">Cat-cow stretches — massages abdominal organs gently from outside</li>
+        <li data-icon="🦵">Knee-to-chest pose — directly compresses the ascending colon</li>
+        <li data-icon="💃">Light dancing — fun way to stimulate lymphatic system</li>
+        <li data-icon="🚴">Cycling — reduces intestinal transit time significantly</li>
+      </ul>
+      <div class="learn-section-title">Exercises That Can WORSEN Bloating</div>
+      <div class="fact-box red"><div class="fact-title">⚠️ Avoid Right After Eating</div><div class="fact-text">Heavy weightlifting, intense ab exercises, and high-intensity running immediately after meals can slow digestion and cause discomfort. Wait at least 30–45 minutes after a full meal before intense exercise.</div></div>
+      <div class="learn-section-title">The 3-Step Post-Meal Routine</div>
+      <ol class="step-list">
+        <li><div class="step-num">1</div><div>Walk slowly for 5–10 minutes right after eating (no sitting!)</div></li>
+        <li><div class="step-num">2</div><div>Do 5 deep belly breaths — breathe into your stomach, not your chest</div></li>
+        <li><div class="step-num">3</div><div>Gently massage your belly clockwise (follows colon direction) for 2 minutes</div></li>
+      </ol>
+      <div class="myth-row">
+        <div class="myth-col bad"><div class="myth-label">❌ Myth</div>"Exercise on empty stomach burns more fat and helps gut"</div>
+        <div class="myth-col good"><div class="myth-label">✅ Fact</div>For gut health, light exercise AFTER meals is more beneficial than intense fasted workouts</div>
+      </div>
+    `
+  },
+  {
+    id:'water', icon:'💧', color:'blue',
+    title:'Hydration & Water Tips',
+    preview:'How water fights bloating (and when it helps)',
+    content:`
+      <div class="did-you-know">
+        <strong>Did you know?</strong> Most people are mildly dehydrated without knowing it. Even mild dehydration causes your body to hold onto water as a defense — causing puffiness in your face and belly.
+      </div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-num">8–10</div><div class="stat-label">glasses daily goal</div></div>
+        <div class="stat-box"><div class="stat-num">60%</div><div class="stat-label">of body is water</div></div>
+      </div>
+      <div class="learn-section-title">The Sodium-Water Connection</div>
+      <div class="fact-box amber"><div class="fact-title">🧂 Salt Holds Water in Your Tissues</div><div class="fact-text">When you eat salty food, your body retains water to dilute the sodium. This shows up as puffy face in the morning, bloated belly, and swollen hands. Drinking MORE water actually helps — it flushes excess sodium out through urine.</div></div>
+      <div class="learn-section-title">Best Times to Drink Water</div>
+      <ul class="tip-list">
+        <li data-icon="🌅">First thing morning — 1 glass warm water kickstarts digestion</li>
+        <li data-icon="⏰">30 min BEFORE meals — prepares stomach acids</li>
+        <li data-icon="🚫">NOT during meals — dilutes digestive enzymes (sip only)</li>
+        <li data-icon="⏰">1 hour AFTER meals — aids nutrient absorption</li>
+        <li data-icon="🌙">Before sleep — small glass prevents overnight dehydration</li>
+      </ul>
+      <div class="learn-section-title">Upgraded Water Recipes</div>
+      <div class="fact-box green"><div class="fact-title">🍋 Lemon Ginger Water</div><div class="fact-text">½ lemon squeezed + small piece of ginger + warm water. Best drunk in the morning. Stimulates bile production and soothes gut lining — one of the best natural debloat drinks.</div></div>
+      <div class="fact-box blue"><div class="fact-title">🥒 Cucumber Mint Water</div><div class="fact-text">Sliced cucumber + fresh mint leaves + cold water. Cucumber is a natural diuretic — it helps flush excess water. Mint relaxes the gut muscles.</div></div>
+      <div class="fact-box purple"><div class="fact-title">🌿 Pandan Water (Filipino)</div><div class="fact-text">Boil pandan leaves in water, cool and drink. Traditional remedy known for calming digestive issues and reducing stomach gas.</div></div>
+      <div class="learn-section-title">Signs You're Not Drinking Enough</div>
+      <ul class="tip-list">
+        <li data-icon="🟡">Urine is dark yellow (should be pale yellow)</li>
+        <li data-icon="😣">Constipation or hard stools</li>
+        <li data-icon="😫">Headaches in the afternoon</li>
+        <li data-icon="🫠">Face looks puffy despite drinking little</li>
+        <li data-icon="😴">Afternoon energy crash</li>
+      </ul>
+    `
+  },
+  {
+    id:'sleep', icon:'😴', color:'purple',
+    title:'Sleep & Bloating Connection',
+    preview:'Why poor sleep makes your gut worse',
+    content:`
+      <div class="did-you-know">
+        <strong>Did you know?</strong> Your gut has its own 24-hour clock called the "gut circadian rhythm." When you sleep late or have irregular sleep, this clock gets disrupted — directly causing slower digestion and more bloating the next day.
+      </div>
+      <div class="learn-section-title">What Happens to Your Gut While You Sleep</div>
+      <div class="fact-box purple"><div class="fact-title">🌙 The Gut's Night Shift</div><div class="fact-text">During deep sleep (stages 3–4), your gut performs maintenance: it clears out old bacteria, repairs the intestinal lining, regulates inflammation, and resets hormone levels. Skip this and you wake up bloated, sluggish, and gassy.</div></div>
+      <div class="learn-section-title">How Bad Sleep Causes Bloating</div>
+      <ul class="tip-list">
+        <li data-icon="📈">Cortisol (stress hormone) rises — slows digestion and increases inflammation</li>
+        <li data-icon="🦠">Gut bacteria diversity drops after just ONE night of poor sleep</li>
+        <li data-icon="🧂">Body craves more salt and sugar (processed food), worsening bloat</li>
+        <li data-icon="💧">Lymphatic drainage (which removes puffiness) only works fully during sleep</li>
+        <li data-icon="😣">Gut lining becomes more permeable ("leaky gut") without enough rest</li>
+      </ul>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-num">7–8h</div><div class="stat-label">ideal sleep for gut health</div></div>
+        <div class="stat-box"><div class="stat-num">10PM</div><div class="stat-label">best time to sleep</div></div>
+      </div>
+      <div class="learn-section-title">Pre-Sleep Routine for Better Digestion</div>
+      <ol class="step-list">
+        <li><div class="step-num">1</div><div>Finish eating 2–3 hours before bed — sleeping on a full stomach worsens reflux and bloating</div></li>
+        <li><div class="step-num">2</div><div>Drink a small cup of chamomile or peppermint tea — both relax gut muscles</div></li>
+        <li><div class="step-num">3</div><div>Do 5 minutes of slow breathing (4 counts in, 6 counts out) — activates rest-and-digest mode</div></li>
+        <li><div class="step-num">4</div><div>No phone/screen 30 minutes before bed — blue light disrupts melatonin which affects gut rhythm</div></li>
+        <li><div class="step-num">5</div><div>Sleep on your LEFT side — anatomy-wise, this speeds up gut emptying overnight</div></li>
+      </ol>
+      <div class="fact-box green"><div class="fact-title">💡 Left-Side Sleeping Tip</div><div class="fact-text">Your stomach is positioned to the left of center. Sleeping on your left side uses gravity to help move waste from the small intestine to the large intestine. Many people who switch to left-side sleeping notice less morning bloating within a week.</div></div>
+      <div class="myth-row">
+        <div class="myth-col bad"><div class="myth-label">❌ Myth</div>"Sleep doesn't affect digestion — they're separate"</div>
+        <div class="myth-col good"><div class="myth-label">✅ Fact</div>The gut-brain axis directly connects sleep quality to digestive health. Poor sleep = poor digestion, every time.</div>
+      </div>
+    `
+  },
+];
+
+// ============================================================
+//  STORAGE
+// ============================================================
+const LS = {
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch{return d;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}},
+};
+const today=()=>new Date().toISOString().slice(0,10);
+const weekKey=()=>{const d=new Date();const day=d.getDay();const diff=d.getDate()-day+(day===0?-6:1);return new Date(d.setDate(diff)).toISOString().slice(0,10);};
+const DAY_NAMES=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DEFAULT_HABITS=[
+  {id:'probiotic-w',name:'Probiotic',target:7,icon:'💊'},
+  {id:'exercise-w',name:'Exercise',target:5,icon:'🏃'},
+  {id:'ginger-w',name:'Ginger Tea',target:6,icon:'🫚'},
+  {id:'water-w',name:'Water',target:7,icon:'💧'},
+];
+function getHabits(){
+  const saved=LS.get('custom-habits',null);
+  return saved||DEFAULT_HABITS.map(h=>({...h}));
+}
+function saveHabits(h){LS.set('custom-habits',h);}
+
+function getChecks(){const s=LS.get('checks',{});const k=today();if(s.date!==k)return{date:k,done:{}};return s;}
+function saveChecks(c){LS.set('checks',c);}
+function getCustomTasks(){return LS.get('custom-tasks',{morning:[],daytime:[],afternoon:[],evening:[],sleep:[]});}
+function saveCustomTasks(t){LS.set('custom-tasks',t);}
+function getWeekly(){const s=LS.get('weekly',{});const k=weekKey();if(s.week!==k)return{week:k,habits:{}};return s;}
+function saveWeekly(w){LS.set('weekly',w);}
+
+// ============================================================
+//  NAV
+// ============================================================
+function goTo(screen,btn){
+  playSound('nav');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+screen).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(screen==='weekly')renderWeekly();
+}
+
+// ============================================================
+//  THEME
+// ============================================================
+function setTheme(dark){
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  document.getElementById('theme-btn').textContent=dark?'☀️':'🌙';
+  document.getElementById('dark-toggle').checked=dark;
+  LS.set('dark',dark);
+}
+function toggleTheme(){setTheme(document.documentElement.getAttribute('data-theme')!=='dark');}
+function initTheme(){const s=LS.get('dark',null);setTheme(s!==null?s:window.matchMedia('(prefers-color-scheme: dark)').matches);}
+
+// ============================================================
+//  CHECKLIST
+// ============================================================
+function getHiddenTasks(){return LS.get('hidden-tasks',{});}
+function saveHiddenTasks(h){LS.set('hidden-tasks',h);}
+
+function allTasks(){
+  const custom=getCustomTasks();
+  const hidden=getHiddenTasks();
+  return BASE_SECTIONS.map(sec=>({
+    ...sec,
+    tasks:[
+      ...(DEFAULT_TASKS[sec.id]||[]).filter(t=>!hidden[t.id]),
+      ...(custom[sec.id]||[]).map(t=>({...t,isCustom:true}))
+    ]
+  }));
+}
+
+function renderChecklist(){
+  const checks=getChecks();
+  const sections=allTasks();
+  const total=sections.reduce((a,s)=>a+s.tasks.length,0);
+  const done=Object.values(checks.done).filter(Boolean).length;
+  const pct=total===0?0:Math.round((done/total)*100);
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-pct').textContent=pct+'%';
+  document.getElementById('greeting-fill').style.width=pct+'%';
+  document.getElementById('greeting-pct').textContent=pct+'% complete today';
+  const area=document.getElementById('checklist-area');
+  if(pct===100&&total>0){
+    area.innerHTML=`<div class="all-done"><div class="all-done-icon">🎉</div><div class="all-done-text">All done today!</div><div class="all-done-sub">Amazing work. You're one step closer to feeling lighter.</div></div>`;
+    return;
+  }
+  let html='';
+  sections.forEach(sec=>{
+    html+=`<div class="timeline-section"><div class="timeline-header"><span class="timeline-icon">${sec.icon}</span><span class="timeline-title">${sec.title}</span></div>`;
+    sec.tasks.forEach(task=>{
+      const isDone=!!checks.done[task.id];
+      const hasDetail=task.why||(task.steps&&task.steps.length>0)||(!task.isCustom);
+      html+=`<div class="task-item ${isDone?'done':''} ${task.isCustom?'custom-task':''}" onclick="toggleTask('${task.id}')">
+        <div class="task-check">${isDone?'✓':''}</div>
+        <div class="task-text">${task.text}</div>
+        ${task.optional?'<span class="task-optional">optional</span>':''}
+        ${hasDetail?`<button class="task-info-btn" onclick="showDetail(event,'${task.id}','${sec.id}',${!!task.isCustom})" title="How to do this">ℹ</button>`:''}
+        <button class="task-delete" onclick="askDelete(event,'${sec.id}','${task.id}',${!!task.isCustom})" title="Remove">×</button>
+      </div>`;
+    });
+    html+=`<button class="add-task-btn" onclick="openModal('${sec.id}')">＋ Add task to ${sec.title}</button>`;
+    html+=`</div>`;
+  });
+  area.innerHTML=html;
+}
+
+function toggleTask(id){
+  const checks=getChecks();
+  const wasChecked=!!checks.done[id];
+  checks.done[id]=!wasChecked;
+  saveChecks(checks);
+  playSound(wasChecked?'uncheck':'check');
+  renderChecklist();
+}
+
+// --- DELETE with custom toast (confirm() is blocked on Android) ---
+let _pendingDelete=null;
+function askDelete(e,secId,taskId,isCustom){
+  e.stopPropagation();
+  _pendingDelete={secId,taskId,isCustom};
+  const msg=document.getElementById('confirm-toast-msg');
+  const sub=document.getElementById('confirm-toast-sub');
+  if(msg) msg.textContent='Remove "'+getTaskText(taskId)+'"?';
+  if(sub) sub.textContent='You can restore it in Settings → Restore Default Tasks';
+  document.getElementById('confirm-yes-btn').onclick=doDelete;
+  document.getElementById('confirm-toast').classList.add('show');
+}
+function closeConfirm(){
+  document.getElementById('confirm-toast').classList.remove('show');
+  _pendingDelete=null;
+}
+function getTaskText(taskId){
+  for(const sec of Object.values(DEFAULT_TASKS)){
+    const t=sec.find(t=>t.id===taskId);
+    if(t)return t.text;
+  }
+  const custom=getCustomTasks();
+  for(const sec of Object.values(custom)){
+    const t=sec.find(t=>t.id===taskId);
+    if(t)return t.text;
+  }
+  return 'this task';
+}
+function doDelete(){
+  if(!_pendingDelete){closeConfirm();return;}
+  const{secId,taskId,isCustom}=_pendingDelete;
+  _pendingDelete=null;
+  closeConfirm();
+  playSound('delete');
+  if(isCustom){
+    const custom=getCustomTasks();
+    custom[secId]=(custom[secId]||[]).filter(t=>t.id!==taskId);
+    saveCustomTasks(custom);
+  } else {
+    const hidden=getHiddenTasks();
+    hidden[taskId]=true;
+    saveHiddenTasks(hidden);
+  }
+  const checks=getChecks();
+  delete checks.done[taskId];
+  saveChecks(checks);
+  renderChecklist();
+  showBanner('🗑️ Task removed. Restore in Settings anytime.');
+}
+
+// --- TASK DETAIL MODAL ---
+function showDetail(e,taskId,secId,isCustom){
+  e.stopPropagation();
+  const sec=BASE_SECTIONS.find(s=>s.id===secId);
+  let task=null;
+  if(isCustom){
+    // Look in custom tasks storage
+    const custom=getCustomTasks();
+    for(const sid of Object.keys(custom)){
+      const found=custom[sid].find(t=>t.id===taskId);
+      if(found){task=found;break;}
+    }
+  } else {
+    const allDefault=Object.values(DEFAULT_TASKS).flat();
+    task=allDefault.find(t=>t.id===taskId);
+  }
+  if(!task)return;
+  const displayName=task.detailName||task.text;
+  const displayIcon=task.icon||'📋';
+  document.getElementById('detail-icon').textContent=displayIcon;
+  document.getElementById('detail-title').textContent=displayName;
+  document.getElementById('detail-tag').textContent=sec?sec.icon+' '+sec.title:'';
+  let html='';
+  if(task.why){
+    html+=`<div class="detail-why"><strong>Why this helps</strong>${task.why}</div>`;
+  }
+  if(task.steps&&task.steps.length){
+    html+=`<div class="detail-steps-title">How to do it</div>`;
+    task.steps.forEach((step,i)=>{
+      html+=`<div class="detail-step"><div class="detail-step-num">${i+1}</div><div>${step}</div></div>`;
+    });
+  }
+  if(task.tip){
+    html+=`<div class="detail-tip"><strong>Tip &nbsp;</strong>${task.tip.replace(/^💡 /,'')}</div>`;
+  }
+  if(!html){
+    html=`<div class="detail-why"><strong>Your custom task</strong>Tap the checkbox to mark this done each day. You can track this habit in the Weekly screen.</div>`;
+  }
+  document.getElementById('detail-body').innerHTML=html;
+  document.getElementById('detail-modal').classList.add('open');
+}
+function closeDetail(){
+  document.getElementById('detail-modal').classList.remove('open');
+}
+
+// ============================================================
+//  MODAL / SUGGESTIONS
+// ============================================================
+let currentSection='morning';
+function openModal(secId){
+  currentSection=secId||'morning';
+  renderSectionPicker();
+  renderSuggestions();
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('custom-task-input').value='';
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+function closeModalOutside(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
+function renderSectionPicker(){
+  const el=document.getElementById('section-picker');
+  el.innerHTML=BASE_SECTIONS.map(s=>`<span class="section-pill ${s.id===currentSection?'active':''}" onclick="pickSection('${s.id}')">${s.icon} ${s.title}</span>`).join('');
+}
+function pickSection(id){currentSection=id;renderSectionPicker();}
+
+function renderSuggestions(){
+  const custom=getCustomTasks();
+  const allCustomIds=Object.values(custom).flat().map(t=>t.text);
+  let html='<div class="section-label" style="padding-top:8px">Choose from suggestions</div>';
+  SUGGESTIONS.forEach(cat=>{
+    html+=`<div class="suggest-cat">${cat.cat}</div>`;
+    cat.items.forEach(item=>{
+      const added=allCustomIds.includes(item.name);
+      html+=`<div class="suggest-item ${added?'added':''}" onclick="addSuggestedTask('${escQ(item.name)}','${escQ(item.icon)}',${added})">
+        <div class="suggest-icon">${item.icon}</div>
+        <div class="suggest-text"><div class="suggest-name">${item.name}</div><div class="suggest-why">${item.why}</div></div>
+        <div class="suggest-check">${added?'✓':''}</div>
+      </div>`;
+    });
+  });
+  document.getElementById('suggestions-list').innerHTML=html;
+}
+
+function escQ(s){return s.replace(/'/g,"\\'");}
+
+function addSuggestedTask(name,icon,alreadyAdded){
+  if(alreadyAdded){showBanner('⚠️ Already added: '+name);return;}
+  // Find full detail from SUGGESTIONS
+  let detail=null;
+  for(const cat of SUGGESTIONS){
+    const found=cat.items.find(i=>i.name===name);
+    if(found){detail=found;break;}
+  }
+  const custom=getCustomTasks();
+  if(!custom[currentSection])custom[currentSection]=[];
+  const id='c-'+Date.now();
+  custom[currentSection].push({
+    id, text:icon+' '+name, optional:false,
+    icon, detailName:name,
+    why:detail?.why||'', steps:detail?.steps||[], tip:detail?.tip||''
+  });
+  saveCustomTasks(custom);
+  renderSuggestions();
+  renderChecklist();
+  showBanner('✅ Added to '+BASE_SECTIONS.find(s=>s.id===currentSection).title+'!');
+}
+
+function addCustomTask(){
+  const val=document.getElementById('custom-task-input').value.trim();
+  if(!val){showBanner('⚠️ Please type a task first');return;}
+  const custom=getCustomTasks();
+  if(!custom[currentSection])custom[currentSection]=[];
+  const id='c-'+Date.now();
+  custom[currentSection].push({id,text:val,optional:false});
+  saveCustomTasks(custom);
+  document.getElementById('custom-task-input').value='';
+  renderSuggestions();
+  renderChecklist();
+  showBanner('✅ Added: '+val);
+}
+
+// ============================================================
+//  GREETING
+// ============================================================
+function updateGreeting(){
+  const h=new Date().getHours();
+  const greet=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const msgs={'Good morning':'Start your day right! 🌱','Good afternoon':'Keep going strong! ☀️','Good evening':'Almost done for today! 🌙'};
+  document.getElementById('greeting-text').textContent=greet+'! '+(msgs[greet]||'');
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const d=new Date();
+  document.getElementById('greeting-day').textContent=`${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+  document.getElementById('header-date').textContent=days[d.getDay()];
+}
+
+// ============================================================
+//  WEEKLY
+// ============================================================
+function renderWeekly(){
+  const w=getWeekly();
+  const habits=getHabits();
+  const sumEl=document.getElementById('week-summary-card');
+  let sumHtml=`<div class="week-summary-title">📊 This Week's Summary</div>`;
+  habits.forEach(h=>{
+    const days=w.habits[h.id]||[];
+    const cnt=days.filter(Boolean).length;
+    sumHtml+=`<div class="summary-row"><span>${h.icon} ${h.name}</span><strong>${cnt} / ${h.target}x</strong></div>`;
+  });
+  sumEl.innerHTML=sumHtml;
+  const area=document.getElementById('habits-area');
+  let html='';
+  habits.forEach(habit=>{
+    const days=w.habits[habit.id]||Array(7).fill(false);
+    const cnt=days.filter(Boolean).length;
+    const todayIdx=(new Date().getDay()+6)%7;
+    html+=`<div class="habit-card">
+      <div class="habit-top">
+        <div>
+          <div class="habit-name">${habit.icon} ${habit.name}</div>
+          <div class="habit-goal">Goal: ${habit.target}x per week</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="habit-stat">${cnt}/${habit.target}<small>this week</small></div>
+          <button class="habit-edit-btn" onclick="openHabitModal('${habit.id}')">✏️</button>
+          <button class="habit-del-btn" onclick="deleteHabit('${habit.id}')">×</button>
+        </div>
+      </div>
+      <div class="week-dots">`;
+    DAY_NAMES.forEach((day,i)=>{
+      const done=days[i];
+      const isToday=i===todayIdx;
+      html+=`<div class="day-dot-wrap">
+        <div class="day-dot ${done?'done':''} ${isToday?'today':''}" onclick="toggleHabit('${habit.id}',${i})">${done?'✓':''}</div>
+        <div class="day-label">${day}</div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  });
+  area.innerHTML=html;
+}
+
+function toggleHabit(habitId,dayIdx){
+  playSound('check');
+  const w=getWeekly();
+  if(!w.habits[habitId])w.habits[habitId]=Array(7).fill(false);
+  w.habits[habitId][dayIdx]=!w.habits[habitId][dayIdx];
+  saveWeekly(w);renderWeekly();
+}
+
+// ============================================================
+//  HABIT MODAL — add / edit habits
+// ============================================================
+const HABIT_EMOJIS=['💊','🏃','🫚','💧','🧘','🚶','💃','🏊','🚴','🥗','🍵','🌿','🤸','😴','📵','🧴','💆','📓','🌞','🥚','🍋','🫛','🧄','🥣','🌾'];
+let _editingHabitId=null;
+let _selectedEmoji='💪';
+let _selectedFreq=5;
+
+function openHabitModal(editId){
+  _editingHabitId=editId||null;
+  playSound('tap');
+  const habits=getHabits();
+  const existing=editId?habits.find(h=>h.id===editId):null;
+  _selectedEmoji=existing?existing.icon:'💪';
+  _selectedFreq=existing?existing.target:5;
+  document.getElementById('habit-modal-title').textContent=editId?'Edit Habit':'Add Habit';
+  document.getElementById('habit-name-input').value=existing?existing.name:'';
+  document.getElementById('habit-emoji-input').value='';
+  renderEmojiGrid();
+  renderFreqPicker();
+  document.getElementById('habit-modal-overlay').classList.add('open');
+}
+function closeHabitModal(){
+  document.getElementById('habit-modal-overlay').classList.remove('open');
+  _editingHabitId=null;
+}
+function closeHabitModalOutside(e){
+  if(e.target===document.getElementById('habit-modal-overlay'))closeHabitModal();
+}
+function renderEmojiGrid(){
+  const grid=document.getElementById('habit-emoji-grid');
+  grid.innerHTML=HABIT_EMOJIS.map(e=>`
+    <div onclick="selectEmoji('${e}')" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;border:2px solid ${e===_selectedEmoji?'var(--green-400)':'var(--border)'};background:${e===_selectedEmoji?'var(--green-50)':'var(--card)'};transition:all .15s;">${e}</div>
+  `).join('');
+  document.getElementById('habit-emoji-preview').textContent=_selectedEmoji;
+}
+function selectEmoji(e){
+  _selectedEmoji=e;
+  document.getElementById('habit-emoji-input').value='';
+  renderEmojiGrid();
+}
+function previewEmoji(val){
+  if(val.trim()){
+    _selectedEmoji=val.trim();
+    document.getElementById('habit-emoji-preview').textContent=_selectedEmoji;
+    renderEmojiGrid();
+  }
+}
+function renderFreqPicker(){
+  const el=document.getElementById('habit-freq-picker');
+  el.innerHTML=[1,2,3,4,5,6,7].map(n=>`
+    <div onclick="selectFreq(${n})" style="width:44px;height:44px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:2px solid ${n===_selectedFreq?'var(--green-400)':'var(--border)'};background:${n===_selectedFreq?'var(--green-400)':'var(--card)'};color:${n===_selectedFreq?'white':'var(--text-primary)'};font-size:16px;font-weight:600;transition:all .15s;">${n}</div>
+  `).join('');
+}
+function selectFreq(n){
+  _selectedFreq=n;
+  playSound('tap');
+  renderFreqPicker();
+}
+function saveHabit(){
+  const name=document.getElementById('habit-name-input').value.trim();
+  if(!name){showBanner('⚠️ Please enter a habit name');return;}
+  const habits=getHabits();
+  if(_editingHabitId){
+    const idx=habits.findIndex(h=>h.id===_editingHabitId);
+    if(idx>-1){habits[idx]={...habits[idx],name,icon:_selectedEmoji,target:_selectedFreq};}
+  } else {
+    habits.push({id:'ch-'+Date.now(),name,icon:_selectedEmoji,target:_selectedFreq});
+  }
+  saveHabits(habits);
+  closeHabitModal();
+  renderWeekly();
+  playSound('check');
+  showBanner(_editingHabitId?'✅ Habit updated!':'✅ New habit added!');
+}
+function deleteHabit(habitId){
+  _pendingDelete={secId:null,taskId:habitId,isCustom:'habit'};
+  const msg=document.getElementById('confirm-toast-msg');
+  const sub=document.getElementById('confirm-toast-sub');
+  if(msg) msg.textContent='Remove this habit?';
+  if(sub) sub.textContent='Your tracked days for this habit will be removed too.';
+  document.getElementById('confirm-yes-btn').onclick=doDeleteHabit;
+  document.getElementById('confirm-toast').classList.add('show');
+}
+function doDeleteHabit(){
+  const habitId=_pendingDelete?.taskId;
+  _pendingDelete=null;
+  closeConfirm();
+  if(!habitId)return;
+  const habits=getHabits().filter(h=>h.id!==habitId);
+  saveHabits(habits);
+  const w=getWeekly();
+  delete w.habits[habitId];
+  saveWeekly(w);
+  playSound('delete');
+  renderWeekly();
+  showBanner('🗑️ Habit removed');
+}
+
+// ============================================================
+//  EXERCISE
+// ============================================================
+const timers={};
+function renderExercise(){
+  const area=document.getElementById('exercise-area');
+  let html='';
+  EXERCISES.forEach(sec=>{
+    html+=`<div class="ex-section"><div class="ex-label">${sec.section}</div>`;
+    sec.items.forEach((ex,i)=>{
+      const uid=sec.section.replace(/\W/g,'')+i;
+      html+=`<div class="ex-item"><div class="ex-icon-wrap">${ex.icon}</div><div class="ex-info"><div class="ex-name">${ex.name}</div><div class="ex-detail">${ex.detail}</div><button class="timer-btn" id="btn-${uid}" onclick="startTimer('${uid}',${ex.secs})">⏱ Start Timer</button><div class="timer-countdown" id="cd-${uid}"><div class="timer-num" id="num-${uid}">${ex.secs}s</div><button class="timer-stop" onclick="stopTimer('${uid}')">Stop</button></div></div></div>`;
+    });
+    html+=`</div>`;
+  });
+  area.innerHTML=html;
+}
+function startTimer(uid,secs){
+  if(timers[uid])return;
+  playSound('timer-start');
+  document.getElementById('btn-'+uid).style.display='none';
+  document.getElementById('cd-'+uid).classList.add('visible');
+  let r=secs;
+  document.getElementById('num-'+uid).textContent=fmtTime(r);
+  timers[uid]=setInterval(()=>{
+    r--;
+    const el=document.getElementById('num-'+uid);
+    if(el)el.textContent=fmtTime(r);
+    if(r<=0){
+      stopTimer(uid);
+      playSound('timer-done');
+      showBanner('✅ Exercise done! Great job 💪');
+    } else if(r<=5){
+      playSound('timer-urgent'); // fast urgent beeps last 5 sec
+    } else {
+      playSound('timer-tick'); // soft tick every second
+    }
+  },1000);
+}
+function stopTimer(uid){clearInterval(timers[uid]);delete timers[uid];const b=document.getElementById('btn-'+uid);const c=document.getElementById('cd-'+uid);if(b)b.style.display='';if(c)c.classList.remove('visible');}
+function fmtTime(s){if(s>=60)return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');return s+'s';}
+
+// ============================================================
+//  LEARN
+// ============================================================
+function renderLearn(){
+  const area=document.getElementById('learn-topics');
+  let html='';
+  LEARN_TOPICS.forEach(topic=>{
+    html+=`<div class="topic-card" id="topic-${topic.id}">
+      <div class="topic-header" onclick="toggleTopic('${topic.id}')">
+        <div class="topic-icon-wrap ${topic.color}">${topic.icon}</div>
+        <div class="topic-title-wrap">
+          <div class="topic-title">${topic.title}</div>
+          <div class="topic-preview">${topic.preview}</div>
+        </div>
+        <div class="topic-chevron">›</div>
+      </div>
+      <div class="topic-body"><div class="topic-content">${topic.content}</div></div>
+    </div>`;
+  });
+  area.innerHTML=html;
+}
+function toggleTopic(id){
+  const card=document.getElementById('topic-'+id);
+  const isOpen=card.classList.contains('open');
+  document.querySelectorAll('.topic-card').forEach(c=>c.classList.remove('open'));
+  if(!isOpen)card.classList.add('open');
+}
+
+// ============================================================
+//  NOTIFICATIONS — full system with permission + SW support
+// ============================================================
+let notifInterval;
+
+function initNotifications(){
+  loadNotifSettings();
+  scheduleReminders();
+  updateNotifStatusUI();
+  // Auto-prompt on first open if not yet decided
+  if('Notification' in window && Notification.permission==='default'){
+    setTimeout(()=>showNotifPrompt(), 3000);
+  }
+}
+
+function updateNotifStatusUI(){
+  const status=document.getElementById('notif-status-text');
+  const btn=document.getElementById('notif-permission-btn');
+  if(!status||!btn)return;
+  if(!('Notification' in window)){
+    status.textContent='Not supported on this browser';
+    status.style.color='var(--text-muted)';
+    btn.style.display='none';
+    return;
+  }
+  if(Notification.permission==='granted'){
+    status.textContent='✅ Enabled — you will get phone notifications';
+    status.style.color='var(--green-500)';
+    btn.textContent='Test notification';
+    btn.style.background='var(--green-50)';
+    btn.style.color='var(--green-500)';
+    btn.style.borderColor='var(--green-200)';
+    btn.onclick=sendTestNotif;
+  } else if(Notification.permission==='denied'){
+    status.textContent='❌ Blocked — enable in phone Settings → Chrome → Notifications';
+    status.style.color='var(--red)';
+    btn.textContent='How to fix';
+    btn.onclick=()=>showBanner('Go to Phone Settings → Apps → Chrome → Notifications → Allow');
+  } else {
+    status.textContent='⚪ Not enabled yet — tap to allow';
+    status.style.color='var(--text-muted)';
+    btn.textContent='Allow notifications';
+    btn.onclick=requestNotifPermission;
+  }
+}
+
+function showNotifPrompt(){
+  // Only show if not already decided
+  if(Notification.permission!=='default')return;
+  if(LS.get('notif-prompt-dismissed',false))return;
+  const overlay=document.getElementById('notif-prompt-overlay');
+  if(overlay) overlay.style.display='flex';
+}
+function dismissNotifPrompt(){
+  const overlay=document.getElementById('notif-prompt-overlay');
+  if(overlay) overlay.style.display='none';
+  LS.set('notif-prompt-dismissed',true);
+}
+function acceptNotifPrompt(){
+  dismissNotifPrompt();
+  requestNotifPermission();
+}
+
+function loadNotifSettings(){
+  const times=LS.get('notif-times',{morning:'07:00',afternoon:'13:00',evening:'19:00'});
+  document.getElementById('time-morning').value=times.morning;
+  document.getElementById('time-afternoon').value=times.afternoon;
+  document.getElementById('time-evening').value=times.evening;
+  document.getElementById('notif-toggle').checked=LS.get('notif-enabled',true);
+}
+function saveTime(k,v){const t=LS.get('notif-times',{morning:'07:00',afternoon:'13:00',evening:'19:00'});t[k]=v;LS.set('notif-times',t);}
+function saveNotifPref(v){LS.set('notif-enabled',v);}
+function scheduleReminders(){if(notifInterval)clearInterval(notifInterval);notifInterval=setInterval(checkReminders,60000);checkReminders();}
+
+function checkReminders(){
+  if(!LS.get('notif-enabled',true))return;
+  const times=LS.get('notif-times',{morning:'07:00',afternoon:'13:00',evening:'19:00'});
+  const now=new Date();
+  const hm=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const msgs={
+    [times.morning]:{title:'🌅 Good morning!',body:'Time to drink water & take your probiotic 💧'},
+    [times.afternoon]:{title:'☀️ Afternoon check-in!',body:'Ginger tea time! Your gut will thank you 🫚'},
+    [times.evening]:{title:'🌙 Evening reminder!',body:'Keep dinner light & take a short walk 🚶'}
+  };
+  const last=LS.get('last-banner','');
+  if(msgs[hm]&&last!==hm){
+    showBanner(msgs[hm].body);
+    LS.set('last-banner',hm);
+    fireNotification(msgs[hm].title, msgs[hm].body);
+  }
+}
+
+function fireNotification(title, body){
+  if(!('Notification' in window))return;
+  if(Notification.permission!=='granted')return;
+  // Try service worker notification first (works when app is backgrounded)
+  if('serviceWorker' in navigator && navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage({
+      type:'SHOW_NOTIF', title, body,
+      icon:'/icon-192.png', badge:'/icon-192.png',
+      tag:'debloat-reminder'
+    });
+  } else {
+    // Fallback to direct notification
+    try{
+      new Notification(title,{
+        body, icon:'/icon-192.png',
+        badge:'/icon-192.png',
+        tag:'debloat-reminder',
+        requireInteraction:false
+      });
+    }catch(e){}
+  }
+}
+
+function sendTestNotif(){
+  fireNotification('🌿 Test notification!','Your Debloat Daily reminders are working!');
+  showBanner('✅ Test notification sent!');
+}
+
+function requestNotifPermission(){
+  if(!('Notification' in window)){
+    showBanner('🔔 Notifications not supported on this browser');
+    return;
+  }
+  Notification.requestPermission().then(permission=>{
+    if(permission==='granted'){
+      showBanner('✅ Notifications enabled! You\'ll get reminders even when the app is closed.');
+      if('serviceWorker' in navigator){
+        navigator.serviceWorker.ready.then(reg=>{
+          console.log('SW ready for push notifications');
+        });
+      }
+      setTimeout(()=>{
+        fireNotification('🌿 Debloat Daily','Notifications are now ON! You\'ll be reminded daily. 💧');
+      }, 500);
+    } else if(permission==='denied'){
+      showBanner('❌ Permission denied. Go to Chrome Settings → Notifications to enable.');
+    } else {
+      showBanner('🔔 Notification permission dismissed');
+    }
+    updateNotifStatusUI();
+    LS.set('notif-prompt-dismissed',true);
+  });
+}
+
+// ============================================================
+//  BANNER
+// ============================================================
+let _bannerTimer=null;
+function showBanner(msg){
+  if(_bannerTimer){clearTimeout(_bannerTimer);_bannerTimer=null;}
+  const b=document.getElementById('notif-banner');
+  document.getElementById('notif-text').textContent=msg;
+  b.style.display='flex';
+  _bannerTimer=setTimeout(function(){hideBanner();},4000);
+}
+function hideBanner(){
+  if(_bannerTimer){clearTimeout(_bannerTimer);_bannerTimer=null;}
+  document.getElementById('notif-banner').style.display='none';
+}
+function dismissBanner(){hideBanner();}
+
+// ============================================================
+//  SETTINGS
+// ============================================================
+function restoreDefaults(){LS.set('hidden-tasks',{});renderChecklist();showBanner('↩️ Default tasks restored!');}
+function resetWeekly(){LS.set('weekly',{});showBanner('🔄 Weekly progress reset!');renderWeekly();}
+function clearAll(){LS.set('checks',{});LS.set('custom-tasks',{});LS.set('hidden-tasks',{});LS.set('weekly',{});showBanner('🗑️ All data cleared!');renderChecklist();renderWeekly();}
+
+// ============================================================
+//  EXPORT / IMPORT BACKUP
+// ============================================================
+function exportData(){
+  const keys=['checks','custom-tasks','hidden-tasks','weekly','notif-times','notif-enabled','dark'];
+  const data={_version:2,_exported:new Date().toISOString(),_app:'Debloat Daily'};
+  keys.forEach(k=>{
+    const v=localStorage.getItem(k);
+    if(v!==null)data[k]=JSON.parse(v);
+  });
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url;
+  a.download='debloat-daily-backup-'+date+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showBanner('💾 Backup saved! Store it in Google Drive or your gallery.');
+}
+
+function triggerImport(){
+  document.getElementById('import-file-input').value='';
+  document.getElementById('import-file-input').click();
+}
+
+function importData(e){
+  const file=e.target.files[0];
+  if(!file){return;}
+  const reader=new FileReader();
+  reader.onload=function(evt){
+    try{
+      const data=JSON.parse(evt.target.result);
+      if(!data._app||data._app!=='Debloat Daily'){
+        showBanner('❌ Invalid backup file — not a Debloat Daily backup');
+        return;
+      }
+      const keys=['checks','custom-tasks','hidden-tasks','weekly','notif-times','notif-enabled','dark'];
+      keys.forEach(k=>{
+        if(data[k]!==undefined)localStorage.setItem(k,JSON.stringify(data[k]));
+      });
+      // Reload UI with restored data
+      initTheme();
+      loadNotifSettings();
+      renderChecklist();
+      renderWeekly();
+      showBanner('✅ Progress restored successfully from backup!');
+    } catch(err){
+      showBanner('❌ Could not read backup file — make sure it\'s the correct file');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ============================================================
+//  SOUNDS — Web Audio API (no files needed, works offline)
+// ============================================================
+let _audioCtx=null;
+function getAudio(){
+  if(!_audioCtx)_audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return _audioCtx;
+}
+function playSound(type){
+  try{
+    const ctx=getAudio();
+    const g=ctx.createGain();
+    g.connect(ctx.destination);
+    if(type==='tap'){
+      // Soft click — short sine blip
+      const o=ctx.createOscillator();
+      o.connect(g);
+      o.type='sine';
+      o.frequency.setValueAtTime(600,ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(400,ctx.currentTime+0.06);
+      g.gain.setValueAtTime(0.15,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime+0.08);
+    } else if(type==='check'){
+      // Satisfying check-off pop
+      const o=ctx.createOscillator();
+      o.connect(g);
+      o.type='sine';
+      o.frequency.setValueAtTime(520,ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(780,ctx.currentTime+0.1);
+      g.gain.setValueAtTime(0.2,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.15);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime+0.15);
+    } else if(type==='uncheck'){
+      // Soft reverse pop
+      const o=ctx.createOscillator();
+      o.connect(g);
+      o.type='sine';
+      o.frequency.setValueAtTime(400,ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(280,ctx.currentTime+0.08);
+      g.gain.setValueAtTime(0.12,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.1);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime+0.1);
+    } else if(type==='timer-start'){
+      // Double beep — start
+      [0,0.12].forEach((delay,i)=>{
+        const o=ctx.createOscillator();
+        const g2=ctx.createGain();
+        o.connect(g2);g2.connect(ctx.destination);
+        o.type='sine';
+        o.frequency.value=880;
+        g2.gain.setValueAtTime(0.18,ctx.currentTime+delay);
+        g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+0.1);
+        o.start(ctx.currentTime+delay);
+        o.stop(ctx.currentTime+delay+0.1);
+      });
+    } else if(type==='timer-tick'){
+      // Soft clock tick every second
+      const o=ctx.createOscillator();
+      const click=ctx.createOscillator();
+      o.connect(g);
+      o.type='sine';
+      o.frequency.value=800;
+      g.gain.setValueAtTime(0.06,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.05);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime+0.05);
+    } else if(type==='timer-urgent'){
+      // Fast urgent double beep for last 5 seconds
+      [0, 0.1].forEach(delay=>{
+        const o=ctx.createOscillator();
+        const g2=ctx.createGain();
+        o.connect(g2);g2.connect(ctx.destination);
+        o.type='square';
+        o.frequency.value=1100;
+        g2.gain.setValueAtTime(0.15,ctx.currentTime+delay);
+        g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+0.08);
+        o.start(ctx.currentTime+delay);
+        o.stop(ctx.currentTime+delay+0.08);
+      });
+    } else if(type==='timer-done'){
+      // Victory fanfare — 3 ascending tones
+      [[0,523],[0.18,659],[0.36,784],[0.54,1047]].forEach(([delay,freq])=>{
+        const o=ctx.createOscillator();
+        const g2=ctx.createGain();
+        o.connect(g2);g2.connect(ctx.destination);
+        o.type='sine';
+        o.frequency.value=freq;
+        g2.gain.setValueAtTime(0.22,ctx.currentTime+delay);
+        g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+0.25);
+        o.start(ctx.currentTime+delay);
+        o.stop(ctx.currentTime+delay+0.25);
+      });
+    } else if(type==='tap'||type==='nav'){
+      // Soft nav/tap blip
+      const o=ctx.createOscillator();
+      o.connect(g);
+      o.type='sine';
+      o.frequency.setValueAtTime(440,ctx.currentTime);
+      g.gain.setValueAtTime(0.08,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.07);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime+0.07);
+    } else if(type==='delete'){
+      // Soft swoosh down
+      const o=ctx.createOscillator();
+      o.connect(g);
+      o.type='sine';
+      o.frequency.setValueAtTime(350,ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(180,ctx.currentTime+0.12);
+      g.gain.setValueAtTime(0.14,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.14);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime+0.14);
+    }
+  } catch(e){}
+}
+
+// ============================================================
+//  SPLASH SCREEN
+// ============================================================
+function hideSplash(){
+  const splash=document.getElementById('splash');
+  if(!splash)return;
+  splash.classList.add('hide');
+  setTimeout(()=>{
+    splash.style.display='none';
+  },650);
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+function init(){
+  initTheme();
+  updateGreeting();
+  renderChecklist();
+  renderExercise();
+  renderLearn();
+  initNotifications();
+  handleDesktopNav();
+  window.addEventListener('resize', handleDesktopNav);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{if(LS.get('dark',null)===null)setTheme(e.matches);});
+
+  // Hide splash after 2.2 seconds
+  setTimeout(hideSplash, 2200);
+
+  // Wire banner dismiss
+  const banner=document.getElementById('notif-banner');
+  if(banner) banner.addEventListener('click',function(){dismissBanner();});
+}
+function handleDesktopNav(){
+  // CSS media query handles everything
+}
+document.addEventListener('DOMContentLoaded',init);
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});}
+</script>
+</body>
+</html>
