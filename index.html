@@ -1413,6 +1413,15 @@ function toggleTask(id){
 
 // --- DELETE with custom toast (confirm() is blocked on Android) ---
 let _pendingDelete=null;
+function resetConfirmBtn(){
+  const btn=document.getElementById('confirm-yes-btn');
+  if(!btn)return;
+  btn.textContent='Remove';
+  btn.style.background='';
+  btn.style.color='';
+  btn.style.borderColor='';
+  btn.onclick=doDelete;
+}
 function askDelete(e,secId,taskId,isCustom){
   e.stopPropagation();
   _pendingDelete={secId,taskId,isCustom};
@@ -1426,6 +1435,7 @@ function askDelete(e,secId,taskId,isCustom){
 function closeConfirm(){
   document.getElementById('confirm-toast').classList.remove('show');
   _pendingDelete=null;
+  resetConfirmBtn();
 }
 function getTaskText(taskId){
   for(const sec of Object.values(DEFAULT_TASKS)){
@@ -1999,9 +2009,58 @@ function dismissBanner(){hideBanner();}
 // ============================================================
 //  SETTINGS
 // ============================================================
-function restoreDefaults(){LS.set('hidden-tasks',{});renderChecklist();showBanner('↩️ Default tasks restored!');}
-function resetWeekly(){LS.set('weekly',{});showBanner('🔄 Weekly progress reset!');renderWeekly();}
-function clearAll(){LS.set('checks',{});LS.set('custom-tasks',{});LS.set('hidden-tasks',{});LS.set('weekly',{});showBanner('🗑️ All data cleared!');renderChecklist();renderWeekly();}
+function restoreDefaults(){
+  const msg=document.getElementById('confirm-toast-msg');
+  const sub=document.getElementById('confirm-toast-sub');
+  if(msg)msg.textContent='Restore all default tasks?';
+  if(sub)sub.textContent='This will bring back all built-in tasks you removed.';
+  document.getElementById('confirm-yes-btn').textContent='Restore';
+  document.getElementById('confirm-yes-btn').onclick=function(){
+    closeConfirm();
+    LS.set('hidden-tasks',{});
+    renderChecklist();
+    showBanner('↩️ Default tasks restored!');
+  };
+  document.getElementById('confirm-toast').classList.add('show');
+}
+
+function resetWeekly(){
+  const msg=document.getElementById('confirm-toast-msg');
+  const sub=document.getElementById('confirm-toast-sub');
+  if(msg)msg.textContent='Reset weekly progress?';
+  if(sub)sub.textContent='This will clear all habit data for this week. Cannot be undone.';
+  document.getElementById('confirm-yes-btn').textContent='Reset';
+  document.getElementById('confirm-yes-btn').onclick=function(){
+    closeConfirm();
+    LS.set('weekly',{});
+    showBanner('🔄 Weekly progress reset!');
+    renderWeekly();
+  };
+  document.getElementById('confirm-toast').classList.add('show');
+}
+
+function clearAll(){
+  const msg=document.getElementById('confirm-toast-msg');
+  const sub=document.getElementById('confirm-toast-sub');
+  if(msg)msg.textContent='Clear ALL data?';
+  if(sub)sub.textContent='⚠️ This deletes everything — tasks, habits, progress. Export a backup first!';
+  document.getElementById('confirm-yes-btn').textContent='Clear everything';
+  document.getElementById('confirm-yes-btn').style.background='var(--red)';
+  document.getElementById('confirm-yes-btn').style.color='white';
+  document.getElementById('confirm-yes-btn').style.borderColor='var(--red)';
+  document.getElementById('confirm-yes-btn').onclick=function(){
+    closeConfirm();
+    LS.set('checks',{});
+    LS.set('custom-tasks',{});
+    LS.set('hidden-tasks',{});
+    LS.set('weekly',{});
+    LS.set('custom-habits',null);
+    showBanner('🗑️ All data cleared!');
+    renderChecklist();
+    renderWeekly();
+  };
+  document.getElementById('confirm-toast').classList.add('show');
+}
 
 // ============================================================
 //  EXPORT / IMPORT BACKUP
