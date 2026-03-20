@@ -44,11 +44,11 @@
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
     html,body{height:100%;overflow:hidden;}
     body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);font-size:15px;line-height:1.5;transition:background .3s,color .3s;}
-
+ 
     /* Mobile-first: app is a column, main-content fills everything */
     #app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
     #main-content{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;}
-
+ 
     /* HEADER */
     .header{height:var(--header-h);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;position:relative;z-index:10;}
     .header-logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--green-400);}
@@ -56,14 +56,14 @@
     .header-right{display:flex;gap:8px;align-items:center;}
     .icon-btn{width:38px;height:38px;border-radius:50%;border:none;background:var(--gray-50);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;transition:background .2s;}
     .icon-btn:active{background:var(--gray-100);}
-
+ 
     /* SCREENS */
     .screens{flex:1;overflow:hidden;position:relative;}
     .screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:0 0 calc(var(--nav-h)+16px);opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .25s ease,transform .25s ease;-webkit-overflow-scrolling:touch;}
     .screen.active{opacity:1;pointer-events:all;transform:translateY(0);}
     .screen::-webkit-scrollbar{display:none;}
     .screen{scrollbar-width:none;}
-
+ 
     /* NAV — mobile: bottom bar. Desktop: left sidebar (overridden in media query) */
     .nav{height:var(--nav-h);background:var(--card);border-top:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);order:2;}
     .nav-sidebar-logo{display:none;}/* hidden on mobile, shown on desktop via JS+CSS */
@@ -73,12 +73,12 @@
     .nav-label{font-size:9px;font-weight:500;letter-spacing:0.2px;}
     .nav-dot{width:4px;height:4px;border-radius:50%;background:var(--green-400);margin-top:-2px;opacity:0;transition:opacity .2s;}
     .nav-item.active .nav-dot{opacity:1;}
-
+ 
     /* COMMON */
     .page-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--text-primary);padding:20px 16px 4px;line-height:1.2;}
     .page-sub{font-size:13px;color:var(--text-secondary);padding:0 16px 16px;}
     .section-label{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
-
+ 
     /* GREETING */
     .greeting-card{margin:16px 16px 8px;background:linear-gradient(135deg,var(--green-400) 0%,#5cb87f 100%);border-radius:var(--radius);padding:20px;color:white;box-shadow:0 4px 20px rgba(74,155,111,.30);}
     .greeting-day{font-size:12px;opacity:.85;margin-bottom:4px;letter-spacing:.5px;}
@@ -86,14 +86,14 @@
     .greeting-progress{background:rgba(255,255,255,.25);border-radius:99px;height:6px;overflow:hidden;margin-bottom:6px;}
     .greeting-fill{height:100%;border-radius:99px;background:white;transition:width .5s;}
     .greeting-pct{font-size:12px;opacity:.9;}
-
+ 
     /* PROGRESS */
     .progress-wrap{margin:0 16px 4px;}
     .progress-bar-track{height:8px;border-radius:99px;background:var(--green-100);overflow:hidden;}
     .progress-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green-400),#5cb87f);transition:width .5s cubic-bezier(.4,0,.2,1);}
     .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:6px;}
     .progress-pct{font-weight:600;color:var(--green-400);font-size:13px;}
-
+ 
     /* CHECKLIST */
     .timeline-section{margin:0 16px 8px;}
     .timeline-header{display:flex;align-items:center;gap:8px;padding:14px 0 8px;}
@@ -113,7 +113,7 @@
     .task-info-btn{background:var(--green-100);border:1px solid var(--green-200);color:var(--green-500);font-size:13px;font-weight:600;cursor:pointer;padding:3px 9px;flex-shrink:0;line-height:1.6;border-radius:99px;transition:all .15s;letter-spacing:0.2px;}
     .task-info-btn:active{background:var(--green-200);}
     [data-theme="dark"] .task-info-btn{background:var(--green-50);border-color:var(--green-100);}
-
+ 
     /* CONFIRM TOAST */
     .confirm-toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:12px;right:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-lg);z-index:300;display:none;flex-direction:column;gap:12px;}
     .confirm-toast.show{display:flex;}
@@ -122,7 +122,7 @@
     .confirm-toast-btns{display:flex;gap:8px;}
     .confirm-yes{flex:1;background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);border-radius:var(--radius-xs);padding:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
     .confirm-no{flex:1;background:var(--gray-50);color:var(--text-secondary);border:1px solid var(--border);border-radius:var(--radius-xs);padding:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
-
+ 
     /* DETAIL MODAL */
     .detail-modal{position:fixed;inset:0;z-index:250;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
     .detail-modal.open{opacity:1;pointer-events:all;}
@@ -146,11 +146,11 @@
     .detail-step-num{width:22px;height:22px;border-radius:50%;background:var(--green-400);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
     .detail-tip{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius-sm);padding:11px 13px;margin-top:12px;font-size:12px;color:var(--text-secondary);line-height:1.5;}
     .detail-tip strong{color:var(--amber);}
-
+ 
     /* ADD TASK BTN */
     .add-task-btn{display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px dashed var(--green-200);background:transparent;color:var(--green-500);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;width:100%;margin-bottom:6px;transition:all .2s;}
     .add-task-btn:active{background:var(--green-50);}
-
+ 
     /* SUGGEST MODAL */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
     .modal-overlay.open{opacity:1;pointer-events:all;}
@@ -179,13 +179,13 @@
     .section-picker{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
     .section-pill{padding:6px 12px;border-radius:99px;border:1px solid var(--border);font-size:12px;font-weight:500;background:var(--gray-50);color:var(--text-secondary);cursor:pointer;transition:all .2s;}
     .section-pill.active{background:var(--green-400);color:white;border-color:var(--green-400);}
-
+ 
     /* ALL DONE */
     .all-done{background:linear-gradient(135deg,var(--green-50),var(--card));border:2px solid var(--green-200);border-radius:var(--radius);margin:0 16px;padding:24px;text-align:center;}
     .all-done-icon{font-size:48px;margin-bottom:8px;}
     .all-done-text{font-family:'DM Serif Display',serif;font-size:22px;color:var(--green-400);}
     .all-done-sub{font-size:13px;color:var(--text-muted);margin-top:4px;}
-
+ 
     .habit-edit-btn{background:var(--gray-50);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
     .habit-edit-btn:active{background:var(--gray-100);}
     .habit-del-btn{background:var(--red-bg);border:1px solid var(--red-border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--red);line-height:1;transition:background .15s;}
@@ -209,7 +209,7 @@
     .summary-row:last-child{border-bottom:none;}
     .summary-row span{font-size:13px;color:var(--text-secondary);}
     .summary-row strong{font-size:13px;color:var(--green-500);}
-
+ 
     /* FOOD */
     .food-section{padding:0 16px;margin-bottom:10px;}
     .food-label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.5px;padding:14px 0 8px;}
@@ -224,7 +224,7 @@
     .food-item.eat{border-color:var(--green-100);background:var(--green-50);}
     [data-theme="dark"] .food-item.avoid{background:#1f1210;border-color:#3a1c18;}
     [data-theme="dark"] .food-item.eat{background:var(--green-50);border-color:var(--green-100);}
-
+ 
     /* EXERCISE */
     .ex-section{padding:0 16px;margin-bottom:10px;}
     .ex-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:12px 0 6px;}
@@ -239,7 +239,7 @@
     .timer-countdown.visible{display:flex;}
     .timer-num{font-size:28px;font-weight:600;color:var(--green-400);font-family:'DM Serif Display',serif;line-height:1;min-width:52px;}
     .timer-stop{background:none;border:1px solid var(--border);border-radius:var(--radius-xs);padding:6px 10px;font-size:12px;color:var(--text-secondary);cursor:pointer;font-family:'DM Sans',sans-serif;}
-
+ 
     /* ===== LEARN SCREEN ===== */
     .learn-hero{margin:16px 16px 0;background:linear-gradient(135deg,#1a3a2a 0%,#2d6347 100%);border-radius:var(--radius);padding:24px 20px;color:white;}
     .learn-hero-icon{font-size:36px;margin-bottom:10px;}
@@ -263,7 +263,7 @@
     .topic-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1);}
     .topic-card.open .topic-body{max-height:2000px;}
     .topic-content{padding:0 16px 20px;border-top:1px solid var(--border);}
-
+ 
     /* Learn content elements */
     .learn-section-title{font-weight:600;font-size:14px;color:var(--text-primary);margin:16px 0 8px;}
     .fact-box{border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;border-left:3px solid;}
@@ -295,7 +295,7 @@
     .step-list li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-secondary);line-height:1.5;counter-increment:steps;}
     .step-list li:last-child{border-bottom:none;}
     .step-num{width:24px;height:24px;border-radius:50%;background:var(--green-400);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;margin-top:1px;}
-
+ 
     /* SETTINGS */
     .settings-section{padding:0 16px;margin-bottom:10px;}
     .settings-group{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
@@ -316,11 +316,11 @@
     .danger-btn{background:#fdecea;color:#c0392b;border:1px solid #fcd0cc;border-radius:var(--radius-xs);padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
     .danger-btn:active{background:#fcd0cc;}
     [data-theme="dark"] .danger-btn{background:var(--red-bg);border-color:var(--red-border);color:#e07b7b;}
-
+ 
     /* NOTIF BANNER */
     .notif-banner{position:fixed;top:var(--header-h);left:0;right:0;background:var(--green-400);color:white;padding:14px 16px;font-size:13px;font-weight:500;z-index:9999;align-items:center;gap:10px;display:none;}
     .notif-close{margin-left:auto;background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.4);color:white;font-size:22px;font-weight:700;cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
-
+ 
     /* ===== SPLASH SCREEN ===== */
     #splash{
       position:fixed;inset:0;z-index:99999;
@@ -448,14 +448,14 @@
       .confirm-toast{max-width:600px;left:50%;transform:translateX(-50%);}
       .confirm-toast.show{display:flex;transform:translateX(-50%);}
     }
-
+ 
     /* Laptop & Desktop (1024px+) — sidebar layout */
     @media (min-width:1024px){
       html,body{overflow:auto;}
-
+ 
       /* App becomes a row */
       #app{flex-direction:row;height:100vh;height:100dvh;overflow:hidden;}
-
+ 
       /* Nav becomes left sidebar */
       .nav{
         width:220px;flex-shrink:0;height:100vh;height:100dvh;
@@ -483,7 +483,7 @@
       .nav-item.active{background:var(--green-50);color:var(--green-500);}
       .nav-item.active .nav-label{font-weight:600;}
       [data-theme="dark"] .nav-item.active{background:var(--green-50);}
-
+ 
       /* main-content fills remaining width as a column */
       #main-content{
         flex:1;display:flex;flex-direction:column;
@@ -492,10 +492,10 @@
       .header{flex-shrink:0;}
       .screens{flex:1;overflow:hidden;}
       .screen{padding:0 0 32px;}
-
+ 
       /* banner offset past sidebar */
       #notif-banner{left:220px !important;}
-
+ 
       /* content padding */
       .greeting-card{margin:24px 40px 12px;}
       .progress-wrap{margin:0 40px 8px;}
@@ -515,16 +515,16 @@
       .greeting-text{font-size:24px;}
       .topic-title{font-size:16px;}
       .add-task-btn{font-size:14px;}
-
+ 
       /* Modals centered */
       .modal-overlay{align-items:center;}
       .modal-sheet{border-radius:20px;max-width:580px;margin:0 auto;max-height:80vh;}
       .detail-modal{align-items:center;}
       .detail-sheet{border-radius:20px;max-width:580px;margin:0 auto;max-height:80vh;}
-
+ 
       /* Toast */
       .confirm-toast{left:260px;right:40px;bottom:32px;max-width:600px;}
-
+ 
       /* Hover effects */
       .task-item:hover{border-color:var(--green-200);background:var(--green-50);}
       .task-item.done:hover{background:var(--green-50);}
@@ -533,7 +533,7 @@
       .nav-item:hover:not(.active){background:var(--gray-50);color:var(--text-secondary);}
       .food-item:hover{box-shadow:var(--shadow);}
     }
-
+ 
     /* Large desktop (1400px+) */
     @media (min-width:1400px){
       .nav{width:260px;}
@@ -572,7 +572,7 @@
     <div class="splash-dot"></div>
   </div>
 </div>
-
+ 
 <div id="app">
   <nav class="nav" id="main-nav">
     <div class="nav-sidebar-logo" id="nav-logo">🌿 Debloat Daily</div>
@@ -583,7 +583,7 @@
     <button class="nav-item" onclick="goTo('learn',this)"><div class="nav-icon">🧠</div><div class="nav-label">Learn</div><div class="nav-dot"></div></button>
     <button class="nav-item" onclick="goTo('settings',this)"><div class="nav-icon">⚙️</div><div class="nav-label">Settings</div><div class="nav-dot"></div></button>
   </nav>
-
+ 
   <div id="main-content">
   <div class="header">
     <div>
@@ -595,14 +595,14 @@
       <button class="icon-btn" onclick="requestNotifPermission()" title="Notifications">🔔</button>
     </div>
   </div>
-
+ 
   <div id="notif-banner" style="position:fixed;top:60px;left:0;right:0;background:#4a9b6f;color:white;padding:14px 16px;font-size:13px;font-weight:500;z-index:9999;align-items:center;gap:10px;display:none;">
     <span id="notif-text">💧 Time to drink water!</span>
     <button style="margin-left:auto;background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.5);color:white;font-size:24px;font-weight:900;cursor:pointer;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;padding:0;" onclick="hideBanner()">×</button>
   </div>
-
+ 
   <div class="screens">
-
+ 
     <!-- HOME -->
     <div class="screen active" id="screen-home">
       <div class="greeting-card">
@@ -620,7 +620,7 @@
       </div>
       <div id="checklist-area"></div>
     </div>
-
+ 
     <!-- WEEKLY -->
     <div class="screen" id="screen-weekly">
       <div class="page-title">Weekly Tracker</div>
@@ -631,7 +631,7 @@
         <button class="add-task-btn" style="width:100%" onclick="openHabitModal()">＋ Add custom habit</button>
       </div>
     </div>
-
+ 
     <!-- FOOD -->
     <div class="screen" id="screen-food">
       <div class="page-title">Food Guide</div>
@@ -658,14 +658,14 @@
         <div class="food-item eat"><div class="food-icon">🐟</div><div><div class="food-name">Fish (bangus, tilapia)</div><div class="food-reason">Lean protein, omega-3 reduces inflammation</div></div></div>
       </div>
     </div>
-
+ 
     <!-- EXERCISE -->
     <div class="screen" id="screen-exercise">
       <div class="page-title">Exercise Guide</div>
       <div class="page-sub">10–15 min daily routine for debloating</div>
       <div id="exercise-area"></div>
     </div>
-
+ 
     <!-- LEARN -->
     <div class="screen" id="screen-learn">
       <div class="learn-hero">
@@ -675,7 +675,7 @@
       </div>
       <div class="learn-topics" id="learn-topics"></div>
     </div>
-
+ 
     <!-- SETTINGS -->
     <div class="screen" id="screen-settings">
       <div class="page-title">Settings</div>
@@ -778,13 +778,13 @@
         </div>
       </div>
     </div>
-
+ 
   </div><!-- end screens -->
   </div><!-- end main-content -->
-
+ 
   <!-- Hidden file input for import -->
   <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importData(event)"/>
-
+ 
   <!-- NOTIFICATION PERMISSION PROMPT -->
   <div id="notif-prompt-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;align-items:flex-end;justify-content:center;">
     <div style="background:var(--card);border-radius:24px 24px 0 0;width:100%;padding:28px 24px 40px;max-width:500px;">
@@ -795,7 +795,7 @@
       <button onclick="dismissNotifPrompt()" style="width:100%;padding:13px;background:transparent;color:var(--text-muted);border:none;border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;">Not now</button>
     </div>
   </div>
-
+ 
   <!-- HABIT MODAL -->
   <div class="modal-overlay" id="habit-modal-overlay" onclick="closeHabitModalOutside(event)">
     <div class="modal-sheet">
@@ -822,7 +822,7 @@
       </div>
     </div>
   </div>
-
+ 
   <!-- CONFIRM TOAST (replaces confirm() which is blocked on Android) -->
   <div class="confirm-toast" id="confirm-toast">
     <div class="confirm-toast-msg" id="confirm-toast-msg">Remove this task?</div>
@@ -832,7 +832,7 @@
       <button class="confirm-no" onclick="closeConfirm()">Cancel</button>
     </div>
   </div>
-
+ 
   <!-- TASK DETAIL MODAL -->
   <div class="detail-modal" id="detail-modal">
     <div class="detail-backdrop" onclick="closeDetail()"></div>
@@ -872,9 +872,9 @@
       </div>
     </div>
   </div>
-
+ 
 </div><!-- end #app -->
-
+ 
 <script>
 // ============================================================
 //  BASE SECTIONS & DEFAULT TASKS
@@ -886,7 +886,7 @@ const BASE_SECTIONS = [
   { id:'evening',   icon:'🌙', title:'Evening' },
   { id:'sleep',     icon:'😴', title:'Before Sleep' },
 ];
-
+ 
 const DEFAULT_TASKS = {
   morning: [
     {id:'drink-water-am', text:'Drink a glass of water', optional:false, icon:'💧',
@@ -951,7 +951,7 @@ const DEFAULT_TASKS = {
      tip:'💡 Sleeping on your LEFT side is one of the easiest free debloat hacks. Your stomach naturally empties faster in this position.'},
   ],
 };
-
+ 
 // ============================================================
 //  BIG SUGGESTION LIBRARY
 // ============================================================
@@ -1092,7 +1092,7 @@ const SUGGESTIONS = [
      tip:'This is completely free and takes only 5 minutes. It\'s one of the most underrated gut health habits — sunlight literally programs your digestive system for the day.'},
   ]},
 ];
-
+ 
 // ============================================================
 //  EXERCISES
 // ============================================================
@@ -1115,7 +1115,7 @@ const EXERCISES = [
     {icon:'🦵',name:'Legs-Up-the-Wall',detail:'1–2 min • Reduces leg & belly puffiness',secs:90},
   ]},
 ];
-
+ 
 // ============================================================
 //  LEARN CONTENT
 // ============================================================
@@ -1295,7 +1295,7 @@ const LEARN_TOPICS = [
     `
   },
 ];
-
+ 
 // ============================================================
 //  STORAGE
 // ============================================================
@@ -1317,14 +1317,14 @@ function getHabits(){
   return saved||DEFAULT_HABITS.map(h=>({...h}));
 }
 function saveHabits(h){LS.set('custom-habits',h);}
-
+ 
 function getChecks(){const s=LS.get('checks',{});const k=today();if(s.date!==k)return{date:k,done:{}};return s;}
 function saveChecks(c){LS.set('checks',c);}
 function getCustomTasks(){return LS.get('custom-tasks',{morning:[],daytime:[],afternoon:[],evening:[],sleep:[]});}
 function saveCustomTasks(t){LS.set('custom-tasks',t);}
 function getWeekly(){const s=LS.get('weekly',{});const k=weekKey();if(s.week!==k)return{week:k,habits:{}};return s;}
 function saveWeekly(w){LS.set('weekly',w);}
-
+ 
 // ============================================================
 //  NAV
 // ============================================================
@@ -1336,7 +1336,7 @@ function goTo(screen,btn){
   if(btn)btn.classList.add('active');
   if(screen==='weekly')renderWeekly();
 }
-
+ 
 // ============================================================
 //  THEME
 // ============================================================
@@ -1348,13 +1348,13 @@ function setTheme(dark){
 }
 function toggleTheme(){setTheme(document.documentElement.getAttribute('data-theme')!=='dark');}
 function initTheme(){const s=LS.get('dark',null);setTheme(s!==null?s:window.matchMedia('(prefers-color-scheme: dark)').matches);}
-
+ 
 // ============================================================
 //  CHECKLIST
 // ============================================================
 function getHiddenTasks(){return LS.get('hidden-tasks',{});}
 function saveHiddenTasks(h){LS.set('hidden-tasks',h);}
-
+ 
 function allTasks(){
   const custom=getCustomTasks();
   const hidden=getHiddenTasks();
@@ -1366,7 +1366,7 @@ function allTasks(){
     ]
   }));
 }
-
+ 
 function renderChecklist(){
   const checks=getChecks();
   const sections=allTasks();
@@ -1401,7 +1401,7 @@ function renderChecklist(){
   });
   area.innerHTML=html;
 }
-
+ 
 function toggleTask(id){
   const checks=getChecks();
   const wasChecked=!!checks.done[id];
@@ -1410,7 +1410,7 @@ function toggleTask(id){
   playSound(wasChecked?'uncheck':'check');
   renderChecklist();
 }
-
+ 
 // --- DELETE with custom toast (confirm() is blocked on Android) ---
 let _pendingDelete=null;
 function resetConfirmBtn(){
@@ -1470,7 +1470,7 @@ function doDelete(){
   renderChecklist();
   showBanner('🗑️ Task removed. Restore in Settings anytime.');
 }
-
+ 
 // --- TASK DETAIL MODAL ---
 function showDetail(e,taskId,secId,isCustom){
   e.stopPropagation();
@@ -1515,7 +1515,7 @@ function showDetail(e,taskId,secId,isCustom){
 function closeDetail(){
   document.getElementById('detail-modal').classList.remove('open');
 }
-
+ 
 // ============================================================
 //  MODAL / SUGGESTIONS
 // ============================================================
@@ -1529,13 +1529,13 @@ function openModal(secId){
 }
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
 function closeModalOutside(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
-
+ 
 function renderSectionPicker(){
   const el=document.getElementById('section-picker');
   el.innerHTML=BASE_SECTIONS.map(s=>`<span class="section-pill ${s.id===currentSection?'active':''}" onclick="pickSection('${s.id}')">${s.icon} ${s.title}</span>`).join('');
 }
 function pickSection(id){currentSection=id;renderSectionPicker();}
-
+ 
 function renderSuggestions(){
   const custom=getCustomTasks();
   const allCustomIds=Object.values(custom).flat().map(t=>t.text);
@@ -1553,9 +1553,9 @@ function renderSuggestions(){
   });
   document.getElementById('suggestions-list').innerHTML=html;
 }
-
+ 
 function escQ(s){return s.replace(/'/g,"\\'");}
-
+ 
 function addSuggestedTask(name,icon,alreadyAdded){
   if(alreadyAdded){showBanner('⚠️ Already added: '+name);return;}
   // Find full detail from SUGGESTIONS
@@ -1577,7 +1577,7 @@ function addSuggestedTask(name,icon,alreadyAdded){
   renderChecklist();
   showBanner('✅ Added to '+BASE_SECTIONS.find(s=>s.id===currentSection).title+'!');
 }
-
+ 
 function addCustomTask(){
   const val=document.getElementById('custom-task-input').value.trim();
   if(!val){showBanner('⚠️ Please type a task first');return;}
@@ -1591,7 +1591,7 @@ function addCustomTask(){
   renderChecklist();
   showBanner('✅ Added: '+val);
 }
-
+ 
 // ============================================================
 //  GREETING
 // ============================================================
@@ -1606,7 +1606,7 @@ function updateGreeting(){
   document.getElementById('greeting-day').textContent=`${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
   document.getElementById('header-date').textContent=days[d.getDay()];
 }
-
+ 
 // ============================================================
 //  WEEKLY
 // ============================================================
@@ -1652,7 +1652,7 @@ function renderWeekly(){
   });
   area.innerHTML=html;
 }
-
+ 
 function toggleHabit(habitId,dayIdx){
   playSound('check');
   const w=getWeekly();
@@ -1660,7 +1660,7 @@ function toggleHabit(habitId,dayIdx){
   w.habits[habitId][dayIdx]=!w.habits[habitId][dayIdx];
   saveWeekly(w);renderWeekly();
 }
-
+ 
 // ============================================================
 //  HABIT MODAL — add / edit habits
 // ============================================================
@@ -1668,7 +1668,7 @@ const HABIT_EMOJIS=['💊','🏃','🫚','💧','🧘','🚶','💃','🏊','�
 let _editingHabitId=null;
 let _selectedEmoji='💪';
 let _selectedFreq=5;
-
+ 
 function openHabitModal(editId){
   _editingHabitId=editId||null;
   playSound('tap');
@@ -1759,7 +1759,7 @@ function doDeleteHabit(){
   renderWeekly();
   showBanner('🗑️ Habit removed');
 }
-
+ 
 // ============================================================
 //  EXERCISE
 // ============================================================
@@ -1801,7 +1801,7 @@ function startTimer(uid,secs){
 }
 function stopTimer(uid){clearInterval(timers[uid]);delete timers[uid];const b=document.getElementById('btn-'+uid);const c=document.getElementById('cd-'+uid);if(b)b.style.display='';if(c)c.classList.remove('visible');}
 function fmtTime(s){if(s>=60)return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');return s+'s';}
-
+ 
 // ============================================================
 //  LEARN
 // ============================================================
@@ -1829,13 +1829,13 @@ function toggleTopic(id){
   document.querySelectorAll('.topic-card').forEach(c=>c.classList.remove('open'));
   if(!isOpen)card.classList.add('open');
 }
-
+ 
 // ============================================================
 //  NOTIFICATIONS — Web Push API (works when app is CLOSED)
 // ============================================================
 const VAPID_PUBLIC_KEY='BE5RYTQIrk2FfSM9jPSQMZ24Gm4wC2KivUuEdkyQpoZLuA-avLu5Ynx75f5THNvepxUv4YoK6HXr5CKrJqIpKcY';
 let notifInterval;
-
+ 
 function urlBase64ToUint8Array(b64){
   const pad='='.repeat((4-b64.length%4)%4);
   const base64=(b64+pad).replace(/-/g,'+').replace(/_/g,'/');
@@ -1844,7 +1844,7 @@ function urlBase64ToUint8Array(b64){
   for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
   return arr;
 }
-
+ 
 function initNotifications(){
   loadNotifSettings();
   scheduleReminders();
@@ -1853,7 +1853,7 @@ function initNotifications(){
     setTimeout(()=>showNotifPrompt(),3000);
   }
 }
-
+ 
 function updateNotifStatusUI(){
   const status=document.getElementById('notif-status-text');
   const btn=document.getElementById('notif-permission-btn');
@@ -1884,7 +1884,7 @@ function updateNotifStatusUI(){
     btn.onclick=requestNotifPermission;
   }
 }
-
+ 
 function showNotifPrompt(){
   if(Notification.permission!=='default')return;
   if(LS.get('notif-prompt-dismissed',false))return;
@@ -1897,7 +1897,7 @@ function dismissNotifPrompt(){
   LS.set('notif-prompt-dismissed',true);
 }
 function acceptNotifPrompt(){dismissNotifPrompt();requestNotifPermission();}
-
+ 
 function loadNotifSettings(){
   const times=LS.get('notif-times',{morning:'07:00',afternoon:'13:00',evening:'19:00'});
   document.getElementById('time-morning').value=times.morning;
@@ -1908,7 +1908,7 @@ function loadNotifSettings(){
 function saveTime(k,v){const t=LS.get('notif-times',{morning:'07:00',afternoon:'13:00',evening:'19:00'});t[k]=v;LS.set('notif-times',t);}
 function saveNotifPref(v){LS.set('notif-enabled',v);}
 function scheduleReminders(){if(notifInterval)clearInterval(notifInterval);notifInterval=setInterval(checkReminders,60000);checkReminders();}
-
+ 
 function checkReminders(){
   if(!LS.get('notif-enabled',true))return;
   const times=LS.get('notif-times',{morning:'07:00',afternoon:'13:00',evening:'19:00'});
@@ -1926,7 +1926,7 @@ function checkReminders(){
     fireNotification(msgs[hm].title,msgs[hm].body);
   }
 }
-
+ 
 function fireNotification(title,body){
   if(!('Notification' in window)||Notification.permission!=='granted')return;
   navigator.serviceWorker.ready.then(reg=>{
@@ -1944,12 +1944,12 @@ function fireNotification(title,body){
     try{new Notification(title,{body,icon:'/icon-192.png'});}catch(e){}
   });
 }
-
+ 
 function sendTestNotif(){
   fireNotification('🌿 Debloat Daily — Test','Your notifications are working! Reminders will fire even when app is closed 🎉');
   showBanner('✅ Test sent! Check your notification bar.');
 }
-
+ 
 async function subscribeToPush(reg){
   try{
     const existing=await reg.pushManager.getSubscription();
@@ -1963,7 +1963,7 @@ async function subscribeToPush(reg){
     console.log('Push subscribe note:',e.message);
   }
 }
-
+ 
 async function requestNotifPermission(){
   if(!('Notification' in window)){
     showBanner('🔔 Notifications not supported on this browser');
@@ -1987,8 +1987,8 @@ async function requestNotifPermission(){
   updateNotifStatusUI();
   LS.set('notif-prompt-dismissed',true);
 }
-
-
+ 
+ 
 // ============================================================
 //  BANNER
 // ============================================================
@@ -2005,7 +2005,7 @@ function hideBanner(){
   document.getElementById('notif-banner').style.display='none';
 }
 function dismissBanner(){hideBanner();}
-
+ 
 // ============================================================
 //  SETTINGS
 // ============================================================
@@ -2023,7 +2023,7 @@ function restoreDefaults(){
   };
   document.getElementById('confirm-toast').classList.add('show');
 }
-
+ 
 function resetWeekly(){
   const msg=document.getElementById('confirm-toast-msg');
   const sub=document.getElementById('confirm-toast-sub');
@@ -2038,7 +2038,7 @@ function resetWeekly(){
   };
   document.getElementById('confirm-toast').classList.add('show');
 }
-
+ 
 function clearAll(){
   const msg=document.getElementById('confirm-toast-msg');
   const sub=document.getElementById('confirm-toast-sub');
@@ -2061,7 +2061,7 @@ function clearAll(){
   };
   document.getElementById('confirm-toast').classList.add('show');
 }
-
+ 
 // ============================================================
 //  EXPORT / IMPORT BACKUP
 // ============================================================
@@ -2085,12 +2085,12 @@ function exportData(){
   URL.revokeObjectURL(url);
   showBanner('💾 Backup saved! Store it in Google Drive or your gallery.');
 }
-
+ 
 function triggerImport(){
   document.getElementById('import-file-input').value='';
   document.getElementById('import-file-input').click();
 }
-
+ 
 function importData(e){
   const file=e.target.files[0];
   if(!file){return;}
@@ -2118,7 +2118,7 @@ function importData(e){
   };
   reader.readAsText(file);
 }
-
+ 
 // ============================================================
 //  SOUNDS — Web Audio API (no files needed, works offline)
 // ============================================================
@@ -2239,7 +2239,7 @@ function playSound(type){
     }
   } catch(e){}
 }
-
+ 
 // ============================================================
 //  SPLASH SCREEN
 // ============================================================
@@ -2251,7 +2251,7 @@ function hideSplash(){
     splash.style.display='none';
   },650);
 }
-
+ 
 // ============================================================
 //  INIT
 // ============================================================
@@ -2265,10 +2265,10 @@ function init(){
   handleDesktopNav();
   window.addEventListener('resize', handleDesktopNav);
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{if(LS.get('dark',null)===null)setTheme(e.matches);});
-
+ 
   // Hide splash after 2.2 seconds
   setTimeout(hideSplash, 2200);
-
+ 
   // Wire banner dismiss
   const banner=document.getElementById('notif-banner');
   if(banner) banner.addEventListener('click',function(){dismissBanner();});
