@@ -1821,17 +1821,26 @@ function toggleTopic(id){
 }
 
 // ============================================================
-//  NOTIFICATIONS — full system with permission + SW support
+//  NOTIFICATIONS — Web Push API (works when app is CLOSED)
 // ============================================================
+const VAPID_PUBLIC_KEY='BE5RYTQIrk2FfSM9jPSQMZ24Gm4wC2KivUuEdkyQpoZLuA-avLu5Ynx75f5THNvepxUv4YoK6HXr5CKrJqIpKcY';
 let notifInterval;
+
+function urlBase64ToUint8Array(b64){
+  const pad='='.repeat((4-b64.length%4)%4);
+  const base64=(b64+pad).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(base64);
+  const arr=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
+  return arr;
+}
 
 function initNotifications(){
   loadNotifSettings();
   scheduleReminders();
   updateNotifStatusUI();
-  // Auto-prompt on first open if not yet decided
-  if('Notification' in window && Notification.permission==='default'){
-    setTimeout(()=>showNotifPrompt(), 3000);
+  if('Notification' in window&&Notification.permission==='default'){
+    setTimeout(()=>showNotifPrompt(),3000);
   }
 }
 
@@ -1846,42 +1855,38 @@ function updateNotifStatusUI(){
     return;
   }
   if(Notification.permission==='granted'){
-    status.textContent='✅ Enabled — you will get phone notifications';
+    status.textContent='✅ Enabled — phone notifications are ON';
     status.style.color='var(--green-500)';
-    btn.textContent='Test notification';
-    btn.style.background='var(--green-50)';
-    btn.style.color='var(--green-500)';
-    btn.style.borderColor='var(--green-200)';
+    btn.textContent='Send test notification';
+    btn.style.cssText='width:100%;padding:11px;background:var(--green-50);color:var(--green-500);border:1px solid var(--green-200);border-radius:var(--radius-xs);font-size:13px;font-weight:600;font-family:DM Sans,sans-serif;cursor:pointer;';
     btn.onclick=sendTestNotif;
   } else if(Notification.permission==='denied'){
-    status.textContent='❌ Blocked — enable in phone Settings → Chrome → Notifications';
+    status.textContent='❌ Blocked — go to Chrome → Site Settings → Notifications → Allow';
     status.style.color='var(--red)';
-    btn.textContent='How to fix';
-    btn.onclick=()=>showBanner('Go to Phone Settings → Apps → Chrome → Notifications → Allow');
+    btn.textContent='How to fix →';
+    btn.style.cssText='width:100%;padding:11px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);border-radius:var(--radius-xs);font-size:13px;font-weight:600;font-family:DM Sans,sans-serif;cursor:pointer;';
+    btn.onclick=()=>showBanner('Chrome menu → Settings → Site Settings → Notifications → find your site → Allow');
   } else {
-    status.textContent='⚪ Not enabled yet — tap to allow';
+    status.textContent='⚪ Not enabled — tap to get phone notifications';
     status.style.color='var(--text-muted)';
     btn.textContent='Allow notifications';
+    btn.style.cssText='width:100%;padding:11px;background:var(--green-400);color:white;border:none;border-radius:var(--radius-xs);font-size:13px;font-weight:600;font-family:DM Sans,sans-serif;cursor:pointer;';
     btn.onclick=requestNotifPermission;
   }
 }
 
 function showNotifPrompt(){
-  // Only show if not already decided
   if(Notification.permission!=='default')return;
   if(LS.get('notif-prompt-dismissed',false))return;
   const overlay=document.getElementById('notif-prompt-overlay');
-  if(overlay) overlay.style.display='flex';
+  if(overlay)overlay.style.display='flex';
 }
 function dismissNotifPrompt(){
-  const overlay=document.getElementById('notif-prompt-overlay');
-  if(overlay) overlay.style.display='none';
+  const o=document.getElementById('notif-prompt-overlay');
+  if(o)o.style.display='none';
   LS.set('notif-prompt-dismissed',true);
 }
-function acceptNotifPrompt(){
-  dismissNotifPrompt();
-  requestNotifPermission();
-}
+function acceptNotifPrompt(){dismissNotifPrompt();requestNotifPermission();}
 
 function loadNotifSettings(){
   const times=LS.get('notif-times',{morning:'07:00',afternoon:'13:00',evening:'19:00'});
@@ -1908,63 +1913,71 @@ function checkReminders(){
   if(msgs[hm]&&last!==hm){
     showBanner(msgs[hm].body);
     LS.set('last-banner',hm);
-    fireNotification(msgs[hm].title, msgs[hm].body);
+    fireNotification(msgs[hm].title,msgs[hm].body);
   }
 }
 
-function fireNotification(title, body){
-  if(!('Notification' in window))return;
-  if(Notification.permission!=='granted')return;
-  // Try service worker notification first (works when app is backgrounded)
-  if('serviceWorker' in navigator && navigator.serviceWorker.controller){
-    navigator.serviceWorker.controller.postMessage({
-      type:'SHOW_NOTIF', title, body,
-      icon:'/icon-192.png', badge:'/icon-192.png',
-      tag:'debloat-reminder'
+function fireNotification(title,body){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  navigator.serviceWorker.ready.then(reg=>{
+    reg.showNotification(title,{
+      body,
+      icon:'/icon-192.png',
+      badge:'/icon-192.png',
+      tag:'debloat-reminder',
+      vibrate:[200,100,200],
+      requireInteraction:false,
+      data:{url:'/'},
+      actions:[{action:'open',title:'Open app'},{action:'dismiss',title:'Dismiss'}]
     });
-  } else {
-    // Fallback to direct notification
-    try{
-      new Notification(title,{
-        body, icon:'/icon-192.png',
-        badge:'/icon-192.png',
-        tag:'debloat-reminder',
-        requireInteraction:false
-      });
-    }catch(e){}
-  }
+  }).catch(()=>{
+    try{new Notification(title,{body,icon:'/icon-192.png'});}catch(e){}
+  });
 }
 
 function sendTestNotif(){
-  fireNotification('🌿 Test notification!','Your Debloat Daily reminders are working!');
-  showBanner('✅ Test notification sent!');
+  fireNotification('🌿 Debloat Daily — Test','Your notifications are working! Reminders will fire even when app is closed 🎉');
+  showBanner('✅ Test sent! Check your notification bar.');
 }
 
-function requestNotifPermission(){
+async function subscribeToPush(reg){
+  try{
+    const existing=await reg.pushManager.getSubscription();
+    if(existing){LS.set('push-sub',JSON.stringify(existing));return;}
+    const sub=await reg.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+    LS.set('push-sub',JSON.stringify(sub));
+  }catch(e){
+    console.log('Push subscribe note:',e.message);
+  }
+}
+
+async function requestNotifPermission(){
   if(!('Notification' in window)){
     showBanner('🔔 Notifications not supported on this browser');
     return;
   }
-  Notification.requestPermission().then(permission=>{
-    if(permission==='granted'){
-      showBanner('✅ Notifications enabled! You\'ll get reminders even when the app is closed.');
-      if('serviceWorker' in navigator){
-        navigator.serviceWorker.ready.then(reg=>{
-          console.log('SW ready for push notifications');
-        });
-      }
-      setTimeout(()=>{
-        fireNotification('🌿 Debloat Daily','Notifications are now ON! You\'ll be reminded daily. 💧');
-      }, 500);
-    } else if(permission==='denied'){
-      showBanner('❌ Permission denied. Go to Chrome Settings → Notifications to enable.');
-    } else {
-      showBanner('🔔 Notification permission dismissed');
+  const permission=await Notification.requestPermission();
+  if(permission==='granted'){
+    if('serviceWorker' in navigator){
+      const reg=await navigator.serviceWorker.ready;
+      await subscribeToPush(reg);
     }
-    updateNotifStatusUI();
-    LS.set('notif-prompt-dismissed',true);
-  });
+    setTimeout(()=>{
+      fireNotification('🌿 Debloat Daily','Notifications ON! You\'ll be reminded even when the app is closed 💧');
+    },800);
+    showBanner('✅ Notifications enabled! You\'ll get reminders even when app is closed.');
+  } else if(permission==='denied'){
+    showBanner('❌ Blocked. Chrome menu → Settings → Site Settings → Notifications → Allow');
+  } else {
+    showBanner('🔔 Tap the bell icon anytime to enable notifications');
+  }
+  updateNotifStatusUI();
+  LS.set('notif-prompt-dismissed',true);
 }
+
 
 // ============================================================
 //  BANNER
